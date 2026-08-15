@@ -5,10 +5,17 @@ import { fetchMealPlans } from "../lib/mealPlanDb";
 import { recommendMealCategories } from "../lib/recommendCategories";
 import { getUserFullName } from "../lib/userProfile";
 import {
+  ACTIVITY_CARDS,
   ACTIVITY_OPTIONS,
   AllergyPicker,
+  GOAL_CARDS,
   GOAL_OPTIONS,
-  SpecifiableSelect,
+  HEALTH_CONDITION_CARDS,
+  HEALTH_CONDITION_OPTIONS,
+  HEALTH_STATUS_CARDS,
+  HEALTH_STATUS_OPTIONS,
+  ILLNESS_STATUS_VALUE,
+  ImageCardPicker,
 } from "./formFields";
 
 export default function Dashboard() {
@@ -17,6 +24,8 @@ export default function Dashboard() {
   const [progress, setProgress] = useState({ generated: 0, saved: 0 });
   const [activityLevel, setActivityLevel] = useState(ACTIVITY_OPTIONS[0]);
   const [bodyGoal, setBodyGoal] = useState(GOAL_OPTIONS[0]);
+  const [healthStatus, setHealthStatus] = useState(HEALTH_STATUS_OPTIONS[0]);
+  const [healthCondition, setHealthCondition] = useState("");
   const [allergies, setAllergies] = useState([]);
   const [budget, setBudget] = useState("");
   const [recommendations, setRecommendations] = useState([]);
@@ -65,6 +74,13 @@ export default function Dashboard() {
       setError("Please choose or specify your body goal.");
       return;
     }
+    if (
+      String(healthStatus || "").trim() === ILLNESS_STATUS_VALUE &&
+      !String(healthCondition || "").trim()
+    ) {
+      setError("Please specify your illness or medical condition.");
+      return;
+    }
 
     setLoading(true);
     setHasFiltered(true);
@@ -73,6 +89,11 @@ export default function Dashboard() {
     const filters = {
       activityLevel: String(activityLevel).trim(),
       bodyGoal: String(bodyGoal).trim(),
+      healthStatus: String(healthStatus).trim(),
+      healthCondition:
+        String(healthStatus).trim() === ILLNESS_STATUS_VALUE
+          ? String(healthCondition).trim()
+          : "",
       allergies,
       budget:
         Number.isFinite(budgetNumber) && budgetNumber > 0 ? budgetNumber : 0,
@@ -103,6 +124,11 @@ export default function Dashboard() {
         badge: category.badge,
         activityLevel: String(activityLevel).trim(),
         bodyGoal: String(bodyGoal).trim(),
+        healthStatus: String(healthStatus).trim(),
+        healthCondition:
+          String(healthStatus).trim() === ILLNESS_STATUS_VALUE
+            ? String(healthCondition).trim()
+            : "",
         allergies,
         budget: hasBudget ? budgetNumber : undefined,
         lockedProfile: true,
@@ -123,8 +149,8 @@ export default function Dashboard() {
             a time.
           </h2>
           <p className="hero__subtitle">
-            Tell us your goal, activity, and allergies first. Then we recommend
-            the meal categories that fit you best.
+            Tell us your goal, activity, health status, and allergies first.
+            Then we recommend the meal categories that fit you best.
           </p>
         </div>
       </section>
@@ -141,23 +167,48 @@ export default function Dashboard() {
 
         <form className="glass filterPanel" onSubmit={handleFindCategories}>
           <div className="formgrid formgrid--2">
-            <SpecifiableSelect
+            <ImageCardPicker
               id="dashActivityLevel"
               label="What do you usually do?"
               value={activityLevel}
               onChange={setActivityLevel}
-              options={ACTIVITY_OPTIONS}
-              helper="Choose one, or pick Specify other to type your own."
+              cards={ACTIVITY_CARDS}
+              helper="Tap to choose your activity level."
             />
-            <SpecifiableSelect
+            <ImageCardPicker
               id="dashBodyGoal"
               label="Body Goal"
               value={bodyGoal}
               onChange={setBodyGoal}
-              options={GOAL_OPTIONS}
-              helper="Choose one, or pick Specify other to type your own."
+              cards={GOAL_CARDS}
+              helper="Tap to choose your body goal."
             />
           </div>
+
+          <div className="formgrid formgrid--2">
+            <ImageCardPicker
+              id="dashHealthStatus"
+              label="Health Status"
+              value={healthStatus}
+              onChange={setHealthStatus}
+              cards={HEALTH_STATUS_CARDS}
+              allowSpecify={false}
+              helper="Do you currently have an illness or medical condition?"
+            />
+          </div>
+
+          {healthStatus === ILLNESS_STATUS_VALUE ? (
+            <div className="formgrid formgrid--2">
+              <ImageCardPicker
+                id="dashHealthCondition"
+                label="What illness/condition?"
+                value={healthCondition}
+                onChange={setHealthCondition}
+                cards={HEALTH_CONDITION_CARDS}
+                helper="Choose your condition, or specify your own."
+              />
+            </div>
+          ) : null}
 
           <AllergyPicker allergies={allergies} onChange={setAllergies} />
 
@@ -217,7 +268,7 @@ export default function Dashboard() {
           {loading ? (
             <div className="glass" style={{ padding: 24 }}>
               <p style={{ margin: 0, color: "var(--text-2)" }}>
-                Matching your goal, activity, and allergies...
+                Matching your goal, activity, health status, and allergies...
               </p>
             </div>
           ) : recommendations.length === 0 ? (
@@ -271,8 +322,8 @@ export default function Dashboard() {
               <div>
                 <h4 className="guideitem__title">Filter your profile</h4>
                 <p className="guideitem__text">
-                  Set your activity level, body goal, allergies, and optional
-                  budget first.
+                  Set your activity level, body goal, health status, allergies,
+                  and optional budget first.
                 </p>
               </div>
             </div>

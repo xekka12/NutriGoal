@@ -1,5 +1,5 @@
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = "openai/gpt-oss-120b";
 
 export const WEEK_DAYS = [
   "Day 1",
@@ -68,6 +68,8 @@ export function isGroqConfigured() {
 function buildProfileLines({
   activityLevel,
   bodyGoal,
+  healthStatus,
+  healthCondition,
   allergies,
   proteinSource,
   carbSource,
@@ -78,6 +80,8 @@ function buildProfileLines({
 
   return `Activity level: ${activityLevel}
 Body goal: ${bodyGoal}
+Health status: ${healthStatus || "Not specified"}
+Illness/condition details: ${healthCondition || "None"}
 Allergies to strictly avoid: ${allergyText}
 Preferred protein source: ${proteinSource}
 Preferred carb source: ${carbSource}
@@ -100,14 +104,32 @@ const RECIPE_SHAPE = `{
   ]
 }`;
 
-function buildSharedRules({ meals, allergies, activityLevel, bodyGoal }) {
+function buildSharedRules({
+  meals,
+  allergies,
+  activityLevel,
+  bodyGoal,
+  healthStatus,
+  healthCondition,
+}) {
   const allergyText = allergies?.length ? allergies.join(", ") : "None";
+  const normalizedHealth = String(healthStatus || "").toLowerCase();
+  const illnessRule =
+    normalizedHealth.includes("has illness") ||
+    normalizedHealth.includes("medical condition")
+      ? "- Favor lighter and balanced recipes that are generally easier on the body"
+      : "";
+  const illnessDetailsRule = String(healthCondition || "").trim()
+    ? `- Adjust meal choices to be suitable for this condition when practical: ${healthCondition}`
+    : "";
 
   return `Rules:
 - Include exactly these meals each day: ${meals.join(", ")}
 - Never use any ingredient related to these allergies: ${allergyText}
 - Match the portion sizes and calories to the activity level (${activityLevel}) and body goal (${bodyGoal})
 - Respect the protein, carb, restriction, and cooking method preferences when they are not "Any" or "None"
+${illnessRule}
+${illnessDetailsRule}
 - Use affordable Filipino ingredients when possible
 - Every ingredient must include estimatedPrice as a realistic Philippine peso estimate
 - estimatedTotal should be the sum of ingredient estimatedPrice values
@@ -164,6 +186,8 @@ async function callGroq({ apiKey, prompt, maxTokens }) {
  *   cookingMethod: string,
  *   activityLevel: string,
  *   bodyGoal: string,
+ *   healthStatus?: string,
+ *   healthCondition?: string,
  *   allergies: string[],
  *   planType: "daily" | "weekly",
  * }} params
@@ -179,6 +203,8 @@ export async function generateMealPlanWithGroq({
   cookingMethod,
   activityLevel = "Not set",
   bodyGoal = "Not set",
+  healthStatus = "Not specified",
+  healthCondition = "",
   allergies = [],
   planType = "daily",
 }) {
@@ -199,13 +225,22 @@ export async function generateMealPlanWithGroq({
   const profile = buildProfileLines({
     activityLevel,
     bodyGoal,
+    healthStatus,
+    healthCondition,
     allergies,
     proteinSource,
     carbSource,
     restriction,
     cookingMethod,
   });
-  const rules = buildSharedRules({ meals, allergies, activityLevel, bodyGoal });
+  const rules = buildSharedRules({
+    meals,
+    allergies,
+    activityLevel,
+    bodyGoal,
+    healthStatus,
+    healthCondition,
+  });
 
   const budgetLines = isWeekly
     ? `Total budget for the whole week: ₱${budget}

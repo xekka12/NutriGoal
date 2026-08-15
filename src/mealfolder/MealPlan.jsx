@@ -13,9 +13,17 @@ import {
   normalizeStep,
 } from "../lib/mealPlanView";
 import {
+  ACTIVITY_CARDS,
   ACTIVITY_OPTIONS,
   AllergyPicker,
+  GOAL_CARDS,
   GOAL_OPTIONS,
+  HEALTH_CONDITION_CARDS,
+  HEALTH_CONDITION_OPTIONS,
+  HEALTH_STATUS_CARDS,
+  HEALTH_STATUS_OPTIONS,
+  ILLNESS_STATUS_VALUE,
+  ImageCardPicker,
   SpecifiableSelect,
 } from "./formFields";
 
@@ -263,6 +271,10 @@ export default function MealPlan() {
     state?.activityLevel ?? savedSelection?.activityLevel ?? ACTIVITY_OPTIONS[0];
   const initialBodyGoal =
     state?.bodyGoal ?? savedSelection?.bodyGoal ?? GOAL_OPTIONS[0];
+  const initialHealthStatus =
+    state?.healthStatus ?? savedSelection?.healthStatus ?? HEALTH_STATUS_OPTIONS[0];
+  const initialHealthCondition =
+    state?.healthCondition ?? savedSelection?.healthCondition ?? "";
   const initialAllergies = Array.isArray(state?.allergies)
     ? state.allergies
     : Array.isArray(savedSelection?.allergies)
@@ -293,6 +305,8 @@ export default function MealPlan() {
           cookingMethod: initialCookingMethod,
           activityLevel: initialActivityLevel,
           bodyGoal: initialBodyGoal,
+          healthStatus: initialHealthStatus,
+          healthCondition: initialHealthCondition,
           allergies: initialAllergies,
           planType: initialPlanType,
           lockedProfile,
@@ -325,6 +339,8 @@ export default function MealPlan() {
   const [cookingMethod, setCookingMethod] = useState(initialCookingMethod);
   const [activityLevel, setActivityLevel] = useState(initialActivityLevel);
   const [bodyGoal, setBodyGoal] = useState(initialBodyGoal);
+  const [healthStatus, setHealthStatus] = useState(initialHealthStatus);
+  const [healthCondition, setHealthCondition] = useState(initialHealthCondition);
   const [allergies, setAllergies] = useState(initialAllergies);
   const [planType, setPlanType] = useState(initialPlanType);
   const [error, setError] = useState("");
@@ -391,6 +407,17 @@ export default function MealPlan() {
       setError("Please choose or specify your body goal.");
       return;
     }
+    if (!String(healthStatus || "").trim()) {
+      setError("Please choose or specify your health status.");
+      return;
+    }
+    if (
+      String(healthStatus || "").trim() === ILLNESS_STATUS_VALUE &&
+      !String(healthCondition || "").trim()
+    ) {
+      setError("Please specify your illness or medical condition.");
+      return;
+    }
     if (!String(proteinSource || "").trim()) {
       setError("Please choose or specify a protein source.");
       return;
@@ -448,6 +475,11 @@ export default function MealPlan() {
           cookingMethod: String(cookingMethod).trim(),
           activityLevel: String(activityLevel).trim(),
           bodyGoal: String(bodyGoal).trim(),
+          healthStatus: String(healthStatus).trim(),
+          healthCondition:
+            String(healthStatus).trim() === ILLNESS_STATUS_VALUE
+              ? String(healthCondition).trim()
+              : "",
           allergies,
           planType,
         });
@@ -482,6 +514,11 @@ export default function MealPlan() {
         cookingMethod,
         activityLevel,
         bodyGoal,
+        healthStatus,
+        healthCondition:
+          String(healthStatus).trim() === ILLNESS_STATUS_VALUE
+            ? String(healthCondition).trim()
+            : "",
         allergies,
       },
       source,
@@ -543,23 +580,50 @@ export default function MealPlan() {
           ) : null}
 
           <div className="formgrid formgrid--2">
-            <SpecifiableSelect
+            <ImageCardPicker
               id="activityLevel"
               label="Activity Level"
               value={activityLevel}
               onChange={setActivityLevel}
-              options={ACTIVITY_OPTIONS}
+              cards={ACTIVITY_CARDS}
               locked={lockedProfile}
             />
-            <SpecifiableSelect
+            <ImageCardPicker
               id="bodyGoal"
               label="Body Goal"
               value={bodyGoal}
               onChange={setBodyGoal}
-              options={GOAL_OPTIONS}
+              cards={GOAL_CARDS}
               locked={lockedProfile}
             />
           </div>
+
+          <div className="formgrid formgrid--2">
+            <ImageCardPicker
+              id="healthStatus"
+              label="Health Status"
+              value={healthStatus}
+              onChange={setHealthStatus}
+              cards={HEALTH_STATUS_CARDS}
+              allowSpecify={false}
+              helper="Do you currently have an illness or medical condition?"
+              locked={lockedProfile}
+            />
+          </div>
+
+          {healthStatus === ILLNESS_STATUS_VALUE ? (
+            <div className="formgrid formgrid--2">
+              <ImageCardPicker
+                id="healthCondition"
+                label="What illness/condition?"
+                value={healthCondition}
+                onChange={setHealthCondition}
+                cards={HEALTH_CONDITION_CARDS}
+                helper="Choose your condition, or specify your own."
+                locked={lockedProfile}
+              />
+            </div>
+          ) : null}
 
           <AllergyPicker
             allergies={allergies}
@@ -751,7 +815,12 @@ export default function MealPlan() {
                   </div>
                   <div className="helper" style={{ marginTop: 4 }}>
                     Activity: {generated.filters.activityLevel} • Goal:{" "}
-                    {generated.filters.bodyGoal} • Allergies:{" "}
+                    {generated.filters.bodyGoal} • Health:{" "}
+                    {generated.filters.healthStatus || "Not specified"}
+                    {generated.filters.healthCondition
+                      ? ` (${generated.filters.healthCondition})`
+                      : ""}
+                    {" • Allergies: "}
                     {generated.filters.allergies?.length
                       ? generated.filters.allergies.join(", ")
                       : "None"}

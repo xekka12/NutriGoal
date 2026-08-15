@@ -2,7 +2,7 @@ import { isGroqConfigured } from "./groqMealPlan";
 import { MEAL_CATEGORIES, getCategoryBySlug } from "./mealCategories";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+const GROQ_MODEL = "openai/gpt-oss-120b";
 
 function parseJsonFromContent(content) {
   const text = String(content || "").trim();
@@ -11,14 +11,19 @@ function parseJsonFromContent(content) {
   return JSON.parse(raw);
 }
 
-function scoreCategoryLocally(category, { bodyGoal, activityLevel, allergies, budget }) {
+function scoreCategoryLocally(
+  category,
+  { bodyGoal, activityLevel, healthStatus, healthCondition, allergies, budget },
+) {
   let score = 40;
   const goal = String(bodyGoal || "").toLowerCase();
   const activity = String(activityLevel || "").toLowerCase();
+  const health = String(healthStatus || "").toLowerCase();
+  const condition = String(healthCondition || "").toLowerCase();
   const tags = category.tags || [];
   const allergyList = allergies || [];
 
-  if (goal.includes("lose") || goal.includes("cut")) {
+  if (goal.includes("lose") || goal.includes("cut") || goal.includes("tone")) {
     if (tags.includes("lose-weight") || tags.includes("cutting") || tags.includes("low-carb")) {
       score += 35;
     }
@@ -27,6 +32,18 @@ function scoreCategoryLocally(category, { bodyGoal, activityLevel, allergies, bu
   if (goal.includes("gain") || goal.includes("bulk") || goal.includes("muscle")) {
     if (tags.includes("bulking") || tags.includes("muscle") || tags.includes("protein")) {
       score += 35;
+    }
+  }
+
+  if (goal.includes("recomp")) {
+    if (tags.includes("protein") || tags.includes("balanced") || tags.includes("muscle")) {
+      score += 30;
+    }
+  }
+
+  if (goal.includes("energy") || goal.includes("stamina")) {
+    if (tags.includes("balanced") || tags.includes("athlete") || tags.includes("healthy")) {
+      score += 25;
     }
   }
 
@@ -62,6 +79,31 @@ function scoreCategoryLocally(category, { bodyGoal, activityLevel, allergies, bu
     if (category.slug === "vegetarian") score += 5;
   }
 
+  if (health.includes("has illness") || health.includes("medical condition")) {
+    if (tags.includes("healthy") || tags.includes("balanced") || tags.includes("heart")) {
+      score += 20;
+    }
+    if (tags.includes("low-carb") || tags.includes("light")) {
+      score += 8;
+    }
+  } else if (health.includes("no current illness")) {
+    if (tags.includes("balanced") || tags.includes("healthy")) {
+      score += 6;
+    }
+  }
+
+  if (condition.includes("heart") || condition.includes("hypertension")) {
+    if (tags.includes("heart") || tags.includes("light") || tags.includes("healthy")) {
+      score += 15;
+    }
+  }
+
+  if (condition.includes("diabetes")) {
+    if (tags.includes("low-carb") || tags.includes("balanced") || tags.includes("healthy")) {
+      score += 15;
+    }
+  }
+
   return Math.min(99, score);
 }
 
@@ -77,6 +119,15 @@ function buildLocalExplanation(category, filters) {
   if (filters.allergies?.length) {
     parts.push(
       `We can keep recipes clear of ${filters.allergies.join(", ").toLowerCase()}.`,
+    );
+  }
+
+  if (String(filters.healthStatus || "").trim()) {
+    parts.push(`Health status noted: ${String(filters.healthStatus).toLowerCase()}.`);
+  }
+  if (String(filters.healthCondition || "").trim()) {
+    parts.push(
+      `Condition focus: ${String(filters.healthCondition).toLowerCase()}.`,
     );
   }
 
@@ -128,6 +179,8 @@ Based on the user's profile, recommend the best meal categories from the catalog
 User profile:
 - Body goal: ${filters.bodyGoal}
 - Activity level: ${filters.activityLevel}
+- Health status: ${filters.healthStatus || "Not specified"}
+- Illness/condition details: ${filters.healthCondition || "None"}
 - Allergies to avoid: ${allergyText}
 - Optional budget: ${budgetText}
 
@@ -214,6 +267,8 @@ Rules:
  * @param {{
  *   bodyGoal: string,
  *   activityLevel: string,
+ *   healthStatus?: string,
+ *   healthCondition?: string,
  *   allergies: string[],
  *   budget?: number | string,
  * }} filters
