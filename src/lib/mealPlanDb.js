@@ -116,6 +116,33 @@ export async function saveMealPlan(plan) {
   return parseMealPlanRow(data);
 }
 
+/** Update an existing plan in the database without changing saved status. */
+export async function updateMealPlan(plan) {
+  if (!plan?.dbId) {
+    throw new Error("Meal plan not found in your account.");
+  }
+
+  const user = await getCurrentUser();
+
+  const { data, error } = await withTimeout(
+    supabase
+      .from("saved_meal_plans")
+      .update({
+        plan,
+        is_saved: Boolean(plan.isSaved),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", plan.dbId)
+      .eq("user_id", user.id)
+      .select("id, created_at, plan, is_saved")
+      .single(),
+  );
+
+  if (error) throw normalizeDatabaseError(error);
+
+  return parseMealPlanRow(data);
+}
+
 export async function fetchMealPlans() {
   const user = await getCurrentUser();
 

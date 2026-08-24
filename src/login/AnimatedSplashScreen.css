@@ -1,0 +1,567 @@
+.splashScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  overflow: hidden;
+  pointer-events: auto;
+  background: #03110a;
+}
+
+.splashScreen--exit {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.splashScreen__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 48% 42% at 50% 48%, #06170e 0%, #020806 72%),
+    #020806;
+  transition: background 1.2s ease;
+}
+
+.splashScreen--opening .splashScreen__bg {
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 48%, #f7fbf6 0%, #eef7ee 70%),
+    #f4faf4;
+}
+
+.splashScreen__light {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 42vw;
+  height: 42vw;
+  max-width: 420px;
+  max-height: 420px;
+  transform: translate(-50%, -50%) scale(0.4);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(236, 253, 245, 0.12) 0%, transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.splashScreen--complete .splashScreen__light {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  transition: opacity 0.5s ease, transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.splashScreen--opening .splashScreen__light {
+  width: 140vw;
+  height: 140vw;
+  max-width: none;
+  max-height: none;
+  background: radial-gradient(circle, #f8fcf8 0%, rgba(248, 252, 248, 0.92) 38%, transparent 70%);
+  opacity: 1;
+}
+
+.splashScreen__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 42% 38% at 50% 48%, transparent 42%, rgba(2, 8, 6, 0.55) 100%);
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 1s ease;
+}
+
+.splashScreen--opening .splashScreen__vignette {
+  opacity: 0;
+}
+
+.splashScreen__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.splashScreen__particle {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(134, 239, 172, 0.85);
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.7);
+  animation: splashParticlePulse 3.4s ease-in-out infinite;
+}
+
+.splashScreen__floater {
+  position: absolute;
+  opacity: 0.45;
+  animation: splashFloaterDrift 9s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.splashScreen__leafLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  transition: transform 1.4s cubic-bezier(0.45, 0, 0.15, 1);
+  will-change: transform;
+}
+
+.splashScreen--opening .splashScreen__leafLayer--left {
+  transform: translateX(-122%);
+}
+
+.splashScreen--opening .splashScreen__leafLayer--right {
+  transform: translateX(122%);
+}
+
+.splashScreen--opening .splashScreen__leafLayer--top {
+  transform: translateY(-70%);
+}
+
+.splashScreen--opening .splashScreen__leafLayer--bottom {
+  transform: translateY(70%);
+}
+
+.splashScreen__leaf {
+  position: absolute;
+  animation: splashLeafSway 5.8s ease-in-out infinite;
+}
+
+.splashScreen__leafInner {
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.4));
+}
+
+.splashLeafSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.splashScreen__content {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.34, 1.2, 0.64, 1),
+    color 0.8s ease;
+}
+
+.splashScreen__content--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.splashScreen__content--opening {
+  color: #14532d;
+}
+
+.splashScreen__content--hide {
+  opacity: 0;
+  transform: scale(1.03);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.splashScreen__logoGlow {
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(74, 222, 128, 0.38) 0%, transparent 70%);
+  animation: splashGlowPulse 2.8s ease-in-out infinite;
+}
+
+.splashScreen--opening .splashScreen__logoGlow {
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.18) 0%, transparent 70%);
+}
+
+.splashScreen__logo {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 16px;
+  background: rgba(6, 78, 59, 0.28);
+  border: 1px solid rgba(167, 243, 208, 0.4);
+  box-shadow: 0 0 32px rgba(52, 211, 153, 0.32);
+  transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+}
+
+.splashScreen--opening .splashScreen__logo {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(21, 128, 61, 0.25);
+  box-shadow: 0 10px 28px rgba(21, 128, 61, 0.12);
+}
+
+.splashLogoMark {
+  width: 46px;
+  height: 46px;
+  color: #ecfdf5;
+  filter: drop-shadow(0 0 8px rgba(110, 231, 183, 0.55));
+  transition: color 0.8s ease, filter 0.8s ease;
+}
+
+.splashLogoMark--dark {
+  color: #166534;
+  filter: none;
+}
+
+.splashScreen__title {
+  margin: 0;
+  font-size: clamp(1.5rem, 5.2vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ecfdf5;
+  text-shadow: 0 0 24px rgba(52, 211, 153, 0.25);
+  transition: color 0.8s ease, text-shadow 0.8s ease;
+}
+
+.splashScreen--opening .splashScreen__title {
+  color: #14532d;
+  text-shadow: none;
+}
+
+.splashScreen__tagline {
+  margin: 10px 0 0;
+  font-size: clamp(0.9rem, 3.2vw, 1.05rem);
+  line-height: 1.5;
+  color: rgba(167, 243, 208, 0.9);
+}
+
+.splashScreen__loading {
+  width: min(300px, 80vw);
+  margin-top: 28px;
+}
+
+.splashScreen__loadingText {
+  margin: 0 0 12px;
+  font-size: 0.88rem;
+  color: rgba(236, 253, 245, 0.9);
+}
+
+.splashScreen__barRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.splashScreen__barTrack {
+  flex: 1;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.splashScreen__barFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #16a34a, #86efac);
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.55);
+}
+
+.splashScreen__percent {
+  min-width: 2.4em;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #86efac;
+  text-align: right;
+}
+
+.splashScreen__ringWrap {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  margin-top: 22px;
+}
+
+.splashScreen__ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.splashScreen__ringTrack,
+.splashScreen__ringFill {
+  fill: none;
+  stroke-width: 7;
+}
+
+.splashScreen__ringTrack {
+  stroke: rgba(255, 255, 255, 0.16);
+}
+
+.splashScreen__ringFill {
+  stroke: #4ade80;
+  stroke-linecap: round;
+  stroke-dasharray: 264;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.7));
+}
+
+.splashScreen--opening .splashScreen__ringFill {
+  stroke: #16a34a;
+}
+
+.splashScreen__ringWrap strong {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.95rem;
+  color: #ecfdf5;
+  transition: color 0.8s ease;
+}
+
+.splashScreen--opening .splashScreen__ringWrap strong {
+  color: #14532d;
+}
+
+.loginPageWrap {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 18%, rgba(187, 247, 208, 0.45) 0%, transparent 52%),
+    radial-gradient(ellipse 80% 60% at 100% 100%, rgba(167, 243, 208, 0.35) 0%, transparent 48%),
+    linear-gradient(180deg, #f4faf5 0%, #eaf4ec 100%);
+}
+
+.loginPageWrap::before,
+.loginPageWrap::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.loginPageWrap::before {
+  width: 220px;
+  height: 220px;
+  left: -70px;
+  top: -50px;
+  border-radius: 60% 40% 70% 30%;
+  background: radial-gradient(circle at 40% 40%, rgba(52, 211, 153, 0.22), transparent 68%);
+}
+
+.loginPageWrap::after {
+  width: 260px;
+  height: 260px;
+  right: -90px;
+  bottom: -80px;
+  border-radius: 40% 60% 30% 70%;
+  background: radial-gradient(circle at 60% 50%, rgba(34, 197, 94, 0.16), transparent 70%);
+}
+
+.loginPageWrap__login {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(20px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 0.85s ease 0.1s,
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.1s;
+}
+
+.loginPageWrap__login--revealed {
+  opacity: 1;
+  transform: none;
+}
+
+.loginPageWrap .auth--login {
+  min-height: unset;
+  width: 100%;
+  max-width: 420px;
+  padding: 0;
+  place-items: stretch;
+}
+
+.loginPageWrap .auth--login .auth__card {
+  width: 100%;
+  margin: 0;
+  padding: 28px 24px 24px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(16, 185, 129, 0.14);
+  box-shadow:
+    0 18px 40px rgba(15, 46, 28, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+}
+
+.loginPageWrap .auth--login .auth__brandIcon {
+  font-size: 28px;
+}
+
+.loginFoodDecor {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.loginFoodDecor__item {
+  position: absolute;
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  opacity: 0.82;
+  filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.1));
+  animation: splashFloaterDrift 8s ease-in-out infinite;
+}
+
+.loginFoodDecor__item--avocado {
+  left: 6%;
+  top: 12%;
+  animation-delay: 0.2s;
+}
+
+.loginFoodDecor__item--broccoli {
+  right: 6%;
+  top: 14%;
+  animation-delay: 1s;
+}
+
+.loginFoodDecor__item--strawberry {
+  left: 8%;
+  bottom: 10%;
+  animation-delay: 1.6s;
+}
+
+.loginFoodDecor__item--salad {
+  right: 7%;
+  bottom: 12%;
+  animation-delay: 0.7s;
+}
+
+.loginFoodDecor__item--leaf {
+  font-size: clamp(1.3rem, 3.6vw, 1.8rem);
+  opacity: 0.55;
+}
+
+.loginFoodDecor__item--leafA {
+  left: 18%;
+  top: 6%;
+}
+
+.loginFoodDecor__item--leafB {
+  right: 16%;
+  bottom: 6%;
+}
+
+@keyframes splashParticlePulse {
+  0%,
+  100% {
+    opacity: 0.28;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes splashFloaterDrift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate(10px, -14px) rotate(7deg);
+  }
+}
+
+@keyframes splashLeafSway {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes splashGlowPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splashScreen__leaf,
+  .splashScreen__particle,
+  .splashScreen__floater,
+  .splashScreen__logoGlow,
+  .loginFoodDecor__item {
+    animation: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .loginPageWrap .auth--login,
+  .loginPageWrap .auth {
+    align-items: center;
+    padding: 0;
+    min-height: unset;
+  }
+
+  .loginPageWrap .auth--login .auth__card,
+  .loginPageWrap .auth__card {
+    width: 100%;
+    max-width: 100%;
+    margin-top: 0;
+    padding: 28px 20px 22px;
+  }
+
+  .loginPageWrap .auth--login .auth__title {
+    font-size: 24px;
+  }
+
+  .loginFoodDecor__item {
+    font-size: 1.7rem;
+  }
+
+  .loginFoodDecor__item--avocado {
+    left: 4%;
+    top: 5%;
+  }
+
+  .loginFoodDecor__item--broccoli {
+    right: 4%;
+    top: 6%;
+  }
+
+  .loginFoodDecor__item--strawberry {
+    left: 5%;
+    bottom: 5%;
+  }
+
+  .loginFoodDecor__item--salad {
+    right: 5%;
+    bottom: 6%;
+  }
+
+  .splashScreen__logo {
+    width: 76px;
+    height: 76px;
+  }
+}

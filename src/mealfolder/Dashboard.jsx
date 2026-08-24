@@ -10,13 +10,18 @@ import {
   AllergyPicker,
   GOAL_CARDS,
   GOAL_OPTIONS,
-  HEALTH_CONDITION_CARDS,
-  HEALTH_CONDITION_OPTIONS,
-  HEALTH_STATUS_CARDS,
   HEALTH_STATUS_OPTIONS,
+  HealthStatusPicker,
   ILLNESS_STATUS_VALUE,
   ImageCardPicker,
 } from "./formFields";
+import BmiCalculator from "./BmiCalculator";
+import {
+  classifyBmi,
+  computeBmi,
+  getBmiGoalCaution,
+  validateBmiInputs,
+} from "./bmiUtils";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -27,15 +32,31 @@ export default function Dashboard() {
   const [healthStatus, setHealthStatus] = useState(HEALTH_STATUS_OPTIONS[0]);
   const [healthCondition, setHealthCondition] = useState("");
   const [allergies, setAllergies] = useState([]);
-  const [budget, setBudget] = useState("");
+  const [bmiAge, setBmiAge] = useState("");
+  const [bmiHeightCm, setBmiHeightCm] = useState("");
+  const [bmiWeightKg, setBmiWeightKg] = useState("");
+  const [bmiGender, setBmiGender] = useState("female");
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [hasFiltered, setHasFiltered] = useState(false);
+  const [pendingBmiCaution, setPendingBmiCaution] = useState(null);
 
   const fullName = useMemo(
     () => getUserFullName(session?.user),
     [session?.user],
+  );
+  const currentBmi = useMemo(
+    () => computeBmi(bmiHeightCm, bmiWeightKg),
+    [bmiHeightCm, bmiWeightKg],
+  );
+  const currentBmiCategory = useMemo(
+    () => classifyBmi(currentBmi),
+    [currentBmi],
+  );
+  const currentBmiCaution = useMemo(
+    () => getBmiGoalCaution(bodyGoal, currentBmi, currentBmiCategory),
+    [bodyGoal, currentBmi, currentBmiCategory],
   );
 
   useEffect(() => {
@@ -62,6 +83,24 @@ export default function Dashboard() {
     };
   }, []);
 
+  const requestRecommendations = async (filters) => {
+    setLoading(true);
+    setHasFiltered(true);
+
+    try {
+      const result = await recommendMealCategories(filters);
+      setRecommendations(result);
+    } catch (recommendError) {
+      setRecommendations([]);
+      setError(
+        recommendError.message ||
+          "Could not recommend meal categories. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleFindCategories = async (event) => {
     event.preventDefault();
     setError("");
@@ -82,10 +121,20 @@ export default function Dashboard() {
       return;
     }
 
-    setLoading(true);
-    setHasFiltered(true);
+    const bmiError = validateBmiInputs({
+      age: bmiAge,
+      heightCm: bmiHeightCm,
+      weightKg: bmiWeightKg,
+      gender: bmiGender,
+    });
+    if (bmiError) {
+      setError(bmiError);
+      return;
+    }
 
-    const budgetNumber = Number(budget);
+    const bmiValue = computeBmi(bmiHeightCm, bmiWeightKg);
+    const bmiCategory = classifyBmi(bmiValue);
+
     const filters = {
       activityLevel: String(activityLevel).trim(),
       bodyGoal: String(bodyGoal).trim(),
@@ -95,27 +144,26 @@ export default function Dashboard() {
           ? String(healthCondition).trim()
           : "",
       allergies,
-      budget:
-        Number.isFinite(budgetNumber) && budgetNumber > 0 ? budgetNumber : 0,
+      age: Number(bmiAge),
+      gender: bmiGender,
+      heightCm: Number(bmiHeightCm),
+      weightKg: Number(bmiWeightKg),
+      bmi: Number(bmiValue.toFixed(1)),
+      bmiCategory: bmiCategory?.label || "",
     };
 
-    try {
-      const result = await recommendMealCategories(filters);
-      setRecommendations(result);
-    } catch (recommendError) {
-      setRecommendations([]);
-      setError(
-        recommendError.message ||
-          "Could not recommend meal categories. Please try again.",
-      );
-    } finally {
-      setLoading(false);
+    const caution = getBmiGoalCaution(bodyGoal, bmiValue, bmiCategory);
+    if (caution) {
+      setPendingBmiCaution({ ...caution, filters });
+      return;
     }
+
+    await requestRecommendations(filters);
   };
 
   const handleSelectCategory = (category) => {
-    const budgetNumber = Number(budget);
-    const hasBudget = Number.isFinite(budgetNumber) && budgetNumber > 0;
+    const bmiValue = computeBmi(bmiHeightCm, bmiWeightKg);
+    const bmiCategory = classifyBmi(bmiValue);
 
     navigate("/meal-plan", {
       state: {
@@ -130,9 +178,13 @@ export default function Dashboard() {
             ? String(healthCondition).trim()
             : "",
         allergies,
-        budget: hasBudget ? budgetNumber : undefined,
+        age: Number(bmiAge),
+        gender: bmiGender,
+        heightCm: Number(bmiHeightCm),
+        weightKg: Number(bmiWeightKg),
+        bmi: bmiValue != null ? Number(bmiValue.toFixed(1)) : undefined,
+        bmiCategory: bmiCategory?.label || "",
         lockedProfile: true,
-        budgetLocked: hasBudget,
       },
     });
   };
@@ -186,56 +238,43 @@ export default function Dashboard() {
           </div>
 
           <div className="formgrid formgrid--2">
-            <ImageCardPicker
+            <HealthStatusPicker
               id="dashHealthStatus"
-              label="Health Status"
-              value={healthStatus}
-              onChange={setHealthStatus}
-              cards={HEALTH_STATUS_CARDS}
-              allowSpecify={false}
-              helper="Do you currently have an illness or medical condition?"
+              healthStatus={healthStatus}
+              healthCondition={healthCondition}
+              onChange={({ healthStatus: nextStatus, healthCondition: nextCondition }) => {
+                setHealthStatus(nextStatus);
+                setHealthCondition(nextCondition);
+              }}
             />
           </div>
 
-          {healthStatus === ILLNESS_STATUS_VALUE ? (
-            <div className="formgrid formgrid--2">
-              <ImageCardPicker
-                id="dashHealthCondition"
-                label="What illness/condition?"
-                value={healthCondition}
-                onChange={setHealthCondition}
-                cards={HEALTH_CONDITION_CARDS}
-                helper="Choose your condition, or specify your own."
-              />
-            </div>
-          ) : null}
-
           <AllergyPicker allergies={allergies} onChange={setAllergies} />
 
-          <div className="field">
-            <label className="label" htmlFor="dashBudget">
-              Budget (optional)
-            </label>
-            <div className="inputwrap">
-              <span className="inputwrap__prefix" aria-hidden="true">
-                ₱
-              </span>
-              <input
-                id="dashBudget"
-                className="input"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                placeholder="Leave blank if you want suggestions without budget"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-              />
+          <BmiCalculator
+            age={bmiAge}
+            heightCm={bmiHeightCm}
+            weightKg={bmiWeightKg}
+            gender={bmiGender}
+            activityLevel={activityLevel}
+            bodyGoal={bodyGoal}
+            onChange={(next) => {
+              setBmiAge(next.age);
+              setBmiHeightCm(next.heightCm);
+              setBmiWeightKg(next.weightKg);
+              setBmiGender(next.gender);
+            }}
+          />
+
+          {currentBmiCaution ? (
+            <div className="bmiGoalCaution" role="alert">
+              <span className="material-symbols-outlined">warning</span>
+              <div>
+                <strong>{currentBmiCaution.title}</strong>
+                <p>{currentBmiCaution.message}</p>
+              </div>
             </div>
-            <div className="helper">
-              Optional. If provided, we will prefer categories that fit your
-              budget. This will be locked later on the Meal Plan page.
-            </div>
-          </div>
+          ) : null}
 
           {error ? <div className="error">{error}</div> : null}
 
@@ -322,8 +361,8 @@ export default function Dashboard() {
               <div>
                 <h4 className="guideitem__title">Filter your profile</h4>
                 <p className="guideitem__text">
-                  Set your activity level, body goal, health status, allergies,
-                  and optional budget first.
+                  Set your activity level, body goal, health status, and
+                  allergies first.
                 </p>
               </div>
             </div>
@@ -380,6 +419,53 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+
+      {pendingBmiCaution ? (
+        <div
+          className="modalOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="bmiGoalCautionTitle"
+        >
+          <div className="confirmModal glass bmiCautionModal">
+            <span
+              className="material-symbols-outlined bmiCautionModal__icon"
+              aria-hidden="true"
+            >
+              warning
+            </span>
+            <h3 id="bmiGoalCautionTitle" className="confirmModal__title">
+              {pendingBmiCaution.title}
+            </h3>
+            <p className="confirmModal__text">
+              {pendingBmiCaution.message}
+            </p>
+            <p className="bmiCautionModal__note">
+              This is a general BMI screening only, not medical advice.
+            </p>
+            <div className="confirmModal__actions">
+              <button
+                className="softbtn"
+                type="button"
+                onClick={() => setPendingBmiCaution(null)}
+              >
+                Change My Goal
+              </button>
+              <button
+                className="primarybtn"
+                type="button"
+                onClick={() => {
+                  const { filters } = pendingBmiCaution;
+                  setPendingBmiCaution(null);
+                  requestRecommendations(filters);
+                }}
+              >
+                Yes, Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

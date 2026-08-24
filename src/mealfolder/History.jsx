@@ -66,6 +66,16 @@ export default function History() {
     }
   };
 
+  const handlePlanUpdate = (updatedPlan) => {
+    setSelectedPlan(updatedPlan);
+    setPlans((current) =>
+      current.map((plan) =>
+        plan.dbId === updatedPlan.dbId ? updatedPlan : plan,
+      ),
+    );
+    setMessageModal("Meal updated successfully.");
+  };
+
   return (
     <section className="section">
       <div className="section__head">
@@ -98,8 +108,8 @@ export default function History() {
                   </span>
                 </div>
                 <p className="catcard__desc">
-                  {isWeeklyPlan(p) ? "1 Week Plan" : "1 Day Plan"} • People:{" "}
-                  {p.people || 1} • Meals: {(p.meals || []).join(" + ") || "—"}
+                  {isWeeklyPlan(p) ? "1 Week Plan" : "1 Day Plan"} • For 1 person
+                  • Meals: {(p.meals || []).join(" + ") || "—"}
                 </p>
                 <p className="catcard__desc" style={{ marginTop: 8 }}>
                   Saved: {formatDate(p.createdAt)}
@@ -156,7 +166,7 @@ export default function History() {
                 <div className="helper">
                   {isWeeklyPlan(selectedPlan) ? "1 Week Plan" : "1 Day Plan"} •
                   Budget: ₱{Number(selectedPlan.budget || 0).toLocaleString()} •
-                  People: {selectedPlan.people || 1} • Meals:{" "}
+                  For 1 person • Meals:{" "}
                   {(selectedPlan.meals || []).join(" + ") || "—"}
                 </div>
                 <div className="helper" style={{ marginTop: 4 }}>
@@ -184,7 +194,11 @@ export default function History() {
               </div>
             </div>
 
-            <MealPlanDetails plan={selectedPlan} />
+            <MealPlanDetails
+              plan={selectedPlan}
+              editable
+              onPlanUpdate={handlePlanUpdate}
+            />
           </div>
         </div>
       ) : null}

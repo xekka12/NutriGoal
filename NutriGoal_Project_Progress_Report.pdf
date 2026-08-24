@@ -1,0 +1,1308 @@
+%PDF-1.3
+%ºß¬à
+3 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 4 0 R
+>>
+endobj
+4 0 obj
+<<
+/Length 4865
+>>
+stream
+0.5670000000000001 w
+0 G
+BT
+/F2 16 Tf
+18.3999999999999986 TL
+0 g
+177.237795275590571 762.5199212598424765 Td
+(PROJECT PROGRESS REPORT) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0 g
+222.8777952755905858 739.8427559055118081 Td
+(Current Accomplishments) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0 g
+39.6850393700787407 694.4884251968503577 Td
+(Project Title: NutriGoal \(Smart Meal Planner\)) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0 g
+39.6850393700787407 674.6459055118109518 Td
+(Date: August 24, 2026) Tj
+ET
+BT
+/F1 11 Tf
+12.6499999999999986 TL
+0 g
+39.6850393700787407 654.8033858267716596 Td
+(Document Type: Project Progress Report) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 615.1183464566928478 Td
+(1. Project Overview) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 610.0159842519684616 m
+555.5905511811024553 610.0159842519684616 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+39.6850393700787407 589.6065354330708033 Td
+(NutriGoal is a web-based healthy meal recommender that generates personalized Filipino meal plans using the) Tj
+T* (user's profile, budget, allergies, health information, and body goals. This report presents the current accomplishments) Tj
+T* (of the system for project progress submission.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 532.9136220472440755 Td
+(2. Completed Major Modules) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 527.8112598425195756 m
+555.5905511811024553 527.8112598425195756 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 507.4018110236219741 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 507.4018110236219741 Td
+(User authentication \(register, login, logout, protected routes\)) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 488.9766141732283131 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 488.9766141732283131 Td
+(Email OTP support for registration and password reset) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 470.5514173228345953 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 470.5514173228345953 Td
+(Animated splash/opening screen before login) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 452.1262204724408775 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 452.1262204724408775 Td
+(Dashboard profile filters \(activity, goal, health status, allergies, BMI\)) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 433.7010236220471597 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 433.7010236220471597 Td
+(Meal category recommendation based on user profile) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 415.2758267716534988 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 415.2758267716534988 Td
+(AI meal plan generation for 1-day and 7-day plans) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 396.850629921259781 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 396.850629921259781 Td
+(Generation progress modal with live percentage and day status) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 378.4254330708660632 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 378.4254330708660632 Td
+(Budget system with suggested and minimum budget) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 360.0002362204724022 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 360.0002362204724022 Td
+(Optional healthy snack included in the daily budget) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 341.5750393700786844 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 341.5750393700786844 Td
+(Daily totals for calories, protein, and estimated cost) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 323.1498425196849666 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 323.1498425196849666 Td
+(Swap meal feature for unavailable breakfast/lunch/dinner/snack) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 304.7246456692912489 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 304.7246456692912489 Td
+(History and Saved Plans storage using Supabase) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 286.2994488188975311 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 286.2994488188975311 Td
+(PDF export of meal plans) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 267.8742519685038133 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 267.8742519685038133 Td
+(System architecture flowchart documentation) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 249.4490551181102092 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 249.4490551181102092 Td
+(Database ERD/schema documentation) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.275 g
+39.6850393700787407 28.3466929133857093 Td
+(Project Progress Report \(Current Accomplishments\)) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.275 g
+509.870551181102428 28.3466929133857093 Td
+(Page 1 of 3) Tj
+ET
+endstream
+endobj
+5 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 6 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 6455
+>>
+stream
+0.8503937007874016 w
+0. G
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 773.8585039370078675 Td
+(3. Detailed Current Accomplishments) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 768.7561417322833677 m
+555.5905511811024553 768.7561417322833677 l
+S
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 745.5120472440944468 Td
+(3.1 User Access and Interface) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 740.4096850393700606 m
+555.5905511811024553 740.4096850393700606 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 720.0002362204724022 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 720.0002362204724022 Td
+(Implemented guest and protected routes using Supabase Auth.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 701.5750393700786844 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 701.5750393700786844 Td
+(Created login and register pages with responsive mobile layout.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 683.1498425196850803 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 683.1498425196850803 Td
+(Added animated splash screen that reveals the login page after loading.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 664.7246456692912489 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 664.7246456692912489 Td
+(Integrated OTP email flow for account verification and password reset.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 640.6301574803148924 Td
+(3.2 Profile-Based Recommendation) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 635.5277952755905062 m
+555.5905511811024553 635.5277952755905062 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 615.1183464566928478 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 615.1183464566928478 Td
+(Dashboard collects activity level, body goal, health status, and allergies.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 596.69314960629913 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 596.69314960629913 Td
+(BMI calculator computes BMI and estimates daily calorie target.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 578.2679527559055259 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 578.2679527559055259 Td
+(System recommends meal categories based on the user's profile.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 554.1734645669291695 Td
+(3.3 AI Meal Plan Generation) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 549.0711023622046696 m
+555.5905511811024553 549.0711023622046696 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 528.6616535433070112 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 528.6616535433070112 Td
+(Users can generate 1-day or 7-day Filipino meal plans through Groq AI.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 510.2364566929133503 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 510.2364566929133503 Td
+(Weekly generation processes one day at a time with progress labels.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 491.8112598425196325 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 491.8112598425196325 Td
+(Each recipe includes ingredients with PHP prices, cook time, calories, and protein.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 473.3860629921259147 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 473.3860629921259147 Td
+(Local recipe fallback is used when AI is unavailable or rate-limited.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 449.2915748031495582 Td
+(3.4 Budget, Snack, and Daily Totals) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 444.1892125984251152 m
+555.5905511811024553 444.1892125984251152 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 423.7797637795275136 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 423.7797637795275136 Td
+(Budget is required on the Meal Plan page and auto-updates based on duration and meals.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 405.3545669291337958 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 405.3545669291337958 Td
+(Optional snack increases suggested budget and adds one healthy snack per day.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 386.929370078740078 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 386.929370078740078 Td
+(Snack cost is included in the total budget allocation, not treated as extra over-budget.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 368.5041732283464171 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 368.5041732283464171 Td
+(Allergy filtering prevents recommending snacks/meals containing user allergens.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 350.0789763779526993 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 350.0789763779526993 Td
+(Each day displays total calories, protein, and estimated peso cost versus budget.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 325.9844881889763428 Td
+(3.5 Plan Management) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 320.882125984251843 m
+555.5905511811024553 320.882125984251843 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 300.4726771653542983 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 300.4726771653542983 Td
+(Generated plans are stored in History.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 282.0474803149605805 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 282.0474803149605805 Td
+(Users can save plans to Saved Plans.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 263.6222834645668627 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 263.6222834645668627 Td
+(Swap Meal replaces one unavailable meal/snack while keeping profile and budget rules.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 245.1970866141731449 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 245.1970866141731449 Td
+(Users can generate again or save the new meal suggestion.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 226.7718897637794271 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 226.7718897637794271 Td
+(Saved plans can be downloaded as PDF.) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.275 g
+39.6850393700787407 28.3466929133857093 Td
+(Project Progress Report \(Current Accomplishments\)) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.275 g
+509.870551181102428 28.3466929133857093 Td
+(Page 2 of 3) Tj
+ET
+endstream
+endobj
+7 0 obj
+<</Type /Page
+/Parent 1 0 R
+/Resources 2 0 R
+/MediaBox [0 0 595.2799999999999727 841.8899999999999864]
+/Contents 8 0 R
+>>
+endobj
+8 0 obj
+<<
+/Length 6362
+>>
+stream
+0.8503937007874016 w
+0. G
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 773.8585039370078675 Td
+(4. Technical Implementation Status) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 768.7561417322833677 m
+555.5905511811024553 768.7561417322833677 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 748.346692913385823 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 748.346692913385823 Td
+(Frontend: React, Vite, React Router, responsive CSS.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 729.9214960629921052 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 729.9214960629921052 Td
+(Authentication and database: Supabase Auth and PostgreSQL.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 711.4962992125983874 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 711.4962992125983874 Td
+(Main plan storage table: saved_meal_plans \(JSONB plan data, is_saved flag\).) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 693.0711023622046696 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 693.0711023622046696 Td
+(Row Level Security restricts users to their own records.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 674.6459055118109518 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 674.6459055118109518 Td
+(AI generation: Groq API.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 656.2207086614173477 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 656.2207086614173477 Td
+(OTP email: Google Apps Script and Brevo.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 637.7955118110235162 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 637.7955118110235162 Td
+(PDF generation: jsPDF.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 613.7010236220471597 Td
+(5. Documentation Prepared) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 608.5986614173227736 m
+555.5905511811024553 608.5986614173227736 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 588.1892125984251152 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 588.1892125984251152 Td
+(Updated System Flowchart / Architecture Diagram \(PDF\).) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 569.7640157480313974 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 569.7640157480313974 Td
+(Database Design / ERD or Schema \(Supabase ERD\).) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 551.3388188976377933 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 551.3388188976377933 Td
+(Project Progress Report / Current Accomplishments \(this document\).) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 527.2443307086614368 Td
+(6. Remaining / Ongoing Work) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 522.1419685039369369 m
+555.5905511811024553 522.1419685039369369 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 501.7325196850393354 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 501.7325196850393354 Td
+(Continue mobile UI polish and consistency checks.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 483.3073228346456176 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 483.3073228346456176 Td
+(Conduct more validation testing for allergies, budget limits, and weekly generation.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 464.8821259842518998 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 464.8821259842518998 Td
+(Finalize remaining project documentation for final submission.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 446.4569291338582389 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 446.4569291338582389 Td
+(Optional improvements: stronger over-budget checks and expanded snack options.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 422.3624409448818255 Td
+(7. Progress Summary) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 417.2600787401573825 m
+555.5905511811024553 417.2600787401573825 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+39.6850393700787407 396.850629921259781 Td
+(Overall, the core NutriGoal system is implemented. Users can register and log in, enter health and lifestyle details,) Tj
+T* (generate AI-based daily or weekly meal plans, include optional snacks within budget, view daily cost totals, swap) Tj
+T* (unavailable meals, save plans, and export PDFs. The project is ready for progress submission with architecture,) Tj
+T* (database design, and this accomplishments report. Remaining work mainly covers polish, testing, and final) Tj
+T* (documentation packaging.) Tj
+ET
+BT
+/F2 12 Tf
+13.7999999999999989 TL
+0. g
+39.6850393700787407 311.8112598425195756 Td
+(8. Submission Checklist Alignment) Tj
+ET
+0. G
+0.8503937007874016 w
+39.6850393700787407 306.7088976377951894 m
+555.5905511811024553 306.7088976377951894 l
+S
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 286.2994488188975311 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 286.2994488188975311 Td
+(Project Title and Description — covered in project overview.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 267.8742519685038133 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 267.8742519685038133 Td
+(Project Objectives — personalized healthy meal planning with budget constraints.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 249.4490551181102092 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 249.4490551181102092 Td
+(Scope and Limitations — AI estimates, market price variation, not medical advice.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 231.0238582677164914 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 231.0238582677164914 Td
+(Updated System Flowchart / Architecture Diagram — prepared.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 212.5986614173227736 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 212.5986614173227736 Td
+(Database Design \(ERD or Schema\) — prepared.) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+36.8503937007874072 194.1734645669290558 Td
+(•) Tj
+ET
+BT
+/F1 10 Tf
+11.5 TL
+0. g
+51.0236220472441033 194.1734645669290558 Td
+(Project Progress Report — this document.) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.275 g
+39.6850393700787407 28.3466929133857093 Td
+(Project Progress Report \(Current Accomplishments\)) Tj
+ET
+BT
+/F1 9 Tf
+10.3499999999999996 TL
+0.275 g
+509.870551181102428 28.3466929133857093 Td
+(Page 3 of 3) Tj
+ET
+endstream
+endobj
+1 0 obj
+<</Type /Pages
+/Kids [3 0 R 5 0 R 7 0 R ]
+/Count 3
+>>
+endobj
+9 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+10 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+11 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+12 0 obj
+<<
+/Type /Font
+/BaseFont /Helvetica-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+13 0 obj
+<<
+/Type /Font
+/BaseFont /Courier
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+14 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+15 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-Oblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+16 0 obj
+<<
+/Type /Font
+/BaseFont /Courier-BoldOblique
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+17 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Roman
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+18 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Bold
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+19 0 obj
+<<
+/Type /Font
+/BaseFont /Times-Italic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+20 0 obj
+<<
+/Type /Font
+/BaseFont /Times-BoldItalic
+/Subtype /Type1
+/Encoding /WinAnsiEncoding
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+21 0 obj
+<<
+/Type /Font
+/BaseFont /ZapfDingbats
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+22 0 obj
+<<
+/Type /Font
+/BaseFont /Symbol
+/Subtype /Type1
+/FirstChar 32
+/LastChar 255
+>>
+endobj
+2 0 obj
+<<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/Font <<
+/F1 9 0 R
+/F2 10 0 R
+/F3 11 0 R
+/F4 12 0 R
+/F5 13 0 R
+/F6 14 0 R
+/F7 15 0 R
+/F8 16 0 R
+/F9 17 0 R
+/F10 18 0 R
+/F11 19 0 R
+/F12 20 0 R
+/F13 21 0 R
+/F14 22 0 R
+>>
+/XObject <<
+>>
+>>
+endobj
+23 0 obj
+<<
+/Producer (jsPDF 4.2.1)
+/CreationDate (D:20260824075552+08'00')
+>>
+endobj
+24 0 obj
+<<
+/Type /Catalog
+/Pages 1 0 R
+/OpenAction [3 0 R /FitH null]
+/PageLayout /OneColumn
+>>
+endobj
+xref
+0 25
+0000000000 65535 f 
+0000018264 00000 n 
+0000020097 00000 n 
+0000000015 00000 n 
+0000000152 00000 n 
+0000005069 00000 n 
+0000005206 00000 n 
+0000011713 00000 n 
+0000011850 00000 n 
+0000018333 00000 n 
+0000018458 00000 n 
+0000018589 00000 n 
+0000018723 00000 n 
+0000018861 00000 n 
+0000018985 00000 n 
+0000019114 00000 n 
+0000019246 00000 n 
+0000019382 00000 n 
+0000019510 00000 n 
+0000019637 00000 n 
+0000019766 00000 n 
+0000019899 00000 n 
+0000020001 00000 n 
+0000020349 00000 n 
+0000020435 00000 n 
+trailer
+<<
+/Size 25
+/Root 24 0 R
+/Info 23 0 R
+/ID [ <28A45C7F8D3F1EF905177A2A1E1FAD37> <28A45C7F8D3F1EF905177A2A1E1FAD37> ]
+>>
+startxref
+20539
+%%EOF

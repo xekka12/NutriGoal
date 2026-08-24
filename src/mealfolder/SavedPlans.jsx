@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { deleteMealPlan, fetchMealPlans } from "../lib/mealPlanDb";
+import { downloadMealPlanPdf } from "../lib/mealPlanPdf";
 import { isWeeklyPlan } from "../lib/mealPlanView";
 import MealPlanDetails from "./MealPlanDetails";
 
@@ -16,6 +17,7 @@ export default function SavedPlans() {
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [planToDelete, setPlanToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [downloadingId, setDownloadingId] = useState(null);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -64,6 +66,35 @@ export default function SavedPlans() {
     }
   };
 
+  const handleDownload = async (plan) => {
+    const planId = plan.dbId || plan.id;
+    setDownloadingId(planId);
+    setError("");
+    setMessage("");
+
+    try {
+      await downloadMealPlanPdf(plan);
+      setMessage("Downloaded successfully.");
+    } catch (downloadError) {
+      setError(
+        downloadError?.message ||
+          "Could not create the PDF. Please try again.",
+      );
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const handlePlanUpdate = (updatedPlan) => {
+    setSelectedPlan(updatedPlan);
+    setPlans((current) =>
+      current.map((plan) =>
+        plan.dbId === updatedPlan.dbId ? updatedPlan : plan,
+      ),
+    );
+    setMessage("Meal updated successfully.");
+  };
+
   return (
     <section className="section">
       <div className="section__head">
@@ -97,8 +128,8 @@ export default function SavedPlans() {
                   </span>
                 </div>
                 <p className="catcard__desc">
-                  {isWeeklyPlan(p) ? "1 Week Plan" : "1 Day Plan"} • People:{" "}
-                  {p.people || 1} • Meals: {(p.meals || []).join(" + ")}
+                  {isWeeklyPlan(p) ? "1 Week Plan" : "1 Day Plan"} • For 1 person
+                  • Meals: {(p.meals || []).join(" + ")}
                 </p>
                 <p className="catcard__desc" style={{ marginTop: 8 }}>
                   Saved: {formatDate(p.createdAt)}
@@ -111,6 +142,17 @@ export default function SavedPlans() {
                     onClick={() => setSelectedPlan(p)}
                   >
                     View
+                  </button>
+                  <button
+                    className="softbtn softbtn--light"
+                    type="button"
+                    onClick={() => handleDownload(p)}
+                    disabled={downloadingId === (p.dbId || p.id)}
+                  >
+                    <span className="material-symbols-outlined">download</span>
+                    {downloadingId === (p.dbId || p.id)
+                      ? "Creating..."
+                      : "PDF"}
                   </button>
                   <button
                     className="softbtn softbtn--danger"
@@ -163,7 +205,7 @@ export default function SavedPlans() {
                 <div className="helper">
                   {isWeeklyPlan(selectedPlan) ? "1 Week Plan" : "1 Day Plan"} •
                   Budget: ₱{Number(selectedPlan.budget || 0).toLocaleString()} •
-                  People: {selectedPlan.people || 1} • Meals:{" "}
+                  For 1 person • Meals:{" "}
                   {(selectedPlan.meals || []).join(" + ") || "—"}
                 </div>
                 <div className="helper" style={{ marginTop: 4 }}>
@@ -172,16 +214,35 @@ export default function SavedPlans() {
                 </div>
               </div>
 
-              <button
-                className="softbtn softbtn--light"
-                type="button"
-                onClick={() => setSelectedPlan(null)}
-              >
-                Close
-              </button>
+              <div className="savedPlanModalActions">
+                <button
+                  className="softbtn softbtn--light"
+                  type="button"
+                  onClick={() => handleDownload(selectedPlan)}
+                  disabled={
+                    downloadingId === (selectedPlan.dbId || selectedPlan.id)
+                  }
+                >
+                  <span className="material-symbols-outlined">download</span>
+                  {downloadingId === (selectedPlan.dbId || selectedPlan.id)
+                    ? "Creating PDF..."
+                    : "Download PDF"}
+                </button>
+                <button
+                  className="softbtn softbtn--light"
+                  type="button"
+                  onClick={() => setSelectedPlan(null)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
 
-            <MealPlanDetails plan={selectedPlan} />
+            <MealPlanDetails
+              plan={selectedPlan}
+              editable
+              onPlanUpdate={handlePlanUpdate}
+            />
           </div>
         </div>
       ) : null}

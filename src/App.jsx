@@ -7,7 +7,7 @@ import History from "./mealfolder/History.jsx";
 import About from "./mealfolder/About.jsx";
 import MealPlan from "./mealfolder/MealPlan.jsx";
 import SavedPlans from "./mealfolder/SavedPlans.jsx";
-import Login from "./login/Login.jsx";
+import LoginPage from "./login/LoginPage.jsx";
 import Register from "./login/Register.jsx";
 import NotFound from "./NotFound.jsx";
 import {
@@ -23,7 +23,7 @@ function App() {
       <AuthProvider>
       <Routes>
         <Route element={<GuestRoute />}>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Register />} />
         </Route>
 

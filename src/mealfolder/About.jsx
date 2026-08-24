@@ -38,8 +38,8 @@ export default function About() {
           <span className="material-symbols-outlined aboutCard__icon">savings</span>
           <h4>Budget-first recommendations</h4>
           <p>
-            Enter your budget and number of people, then get meal ideas designed
-            to stay realistic for everyday grocery planning.
+            Enter your daily budget, then get meal ideas designed to stay
+            realistic for everyday grocery planning for one person.
           </p>
         </article>
 

@@ -1,4 +1,22 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+
+/**
+ * Modals must escape the .glass panels, whose backdrop-filter would otherwise
+ * become the containing block for position: fixed and push them off-screen.
+ */
+function ModalPortal({ children }) {
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
+  if (typeof document === "undefined") return null;
+  return createPortal(children, document.body);
+}
 
 export const SPECIFY_OPTION = "Specify other...";
 
@@ -453,13 +471,14 @@ export function ImageCardPicker({
       {helper ? <div className="helper">{helper}</div> : null}
 
       {open ? (
+        <ModalPortal>
         <div
           className="modalOverlay"
           role="dialog"
           aria-modal="true"
           aria-labelledby={`${id}-modal-title`}
         >
-          <div className="glass icpModal modalScroll">
+          <div className="glass icpModal">
             <div className="icpModal__head">
               <h3 id={`${id}-modal-title`} className="confirmModal__title">
                 {label}
@@ -476,10 +495,11 @@ export function ImageCardPicker({
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <p className="confirmModal__text">
+            <p className="confirmModal__text icpModal__intro">
               Pick one below, or specify your own.
             </p>
 
+            <div className="icpModal__body">
             <div className="icpGrid">
               {cards.map((card) => {
                 const active = card.value === value;
@@ -565,8 +585,335 @@ export function ImageCardPicker({
                 </button>
               )
             ) : null}
+            </div>
           </div>
         </div>
+        </ModalPortal>
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * Combined Health Status + Condition picker.
+ * Selecting "Has Illness" opens condition cards in the same modal (no extra form field).
+ */
+export function HealthStatusPicker({
+  id = "healthStatus",
+  label = "Health Status",
+  healthStatus,
+  healthCondition,
+  onChange,
+  locked = false,
+  helper = "Do you currently have an illness or medical condition?",
+}) {
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState("status"); // "status" | "condition"
+  const [specifying, setSpecifying] = useState(false);
+  const [customValue, setCustomValue] = useState("");
+
+  const statusCard = HEALTH_STATUS_CARDS.find((c) => c.value === healthStatus);
+  const conditionCard = HEALTH_CONDITION_CARDS.find(
+    (c) => c.value === healthCondition
+  );
+  const hasIllness = healthStatus === ILLNESS_STATUS_VALUE;
+
+  const openModal = () => {
+    setStep(hasIllness && healthCondition ? "condition" : "status");
+    setSpecifying(false);
+    setCustomValue("");
+    setOpen(true);
+  };
+
+  const closeModal = () => {
+    setOpen(false);
+    setStep("status");
+    setSpecifying(false);
+    setCustomValue("");
+  };
+
+  const pickNoIllness = () => {
+    onChange({
+      healthStatus: HEALTH_STATUS_OPTIONS[0],
+      healthCondition: "",
+    });
+    closeModal();
+  };
+
+  const pickHasIllness = () => {
+    setStep("condition");
+    setSpecifying(false);
+    setCustomValue("");
+  };
+
+  const pickCondition = (value) => {
+    onChange({
+      healthStatus: ILLNESS_STATUS_VALUE,
+      healthCondition: value,
+    });
+    closeModal();
+  };
+
+  const handleSpecifySubmit = () => {
+    const cleaned = customValue.trim();
+    if (!cleaned) return;
+    pickCondition(cleaned);
+  };
+
+  const triggerThumb = hasIllness
+    ? conditionCard?.img || statusCard?.img
+    : statusCard?.img;
+  const triggerLabel = hasIllness
+    ? conditionCard?.label || healthCondition || "Has Illness"
+    : statusCard?.label || healthStatus;
+  const triggerDesc = hasIllness
+    ? "Has illness / medical condition"
+    : statusCard?.desc || "";
+
+  if (locked) {
+    return (
+      <div className="field">
+        <label className="label" htmlFor={id}>
+          {label}
+        </label>
+        <div className="icpTrigger icpTrigger--locked">
+          {statusCard ? (
+            <>
+              <span
+                className="material-symbols-outlined icpTrigger__icon"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                {hasIllness && conditionCard
+                  ? conditionCard.icon
+                  : statusCard.icon}
+              </span>
+              <span className="icpTrigger__label">{triggerLabel}</span>
+            </>
+          ) : (
+            <span className="icpTrigger__label">{healthStatus || "—"}</span>
+          )}
+        </div>
+        {helper ? <div className="helper">{helper}</div> : null}
+      </div>
+    );
+  }
+
+  return (
+    <div className="field">
+      <label className="label" htmlFor={id}>
+        {label}
+      </label>
+      <button
+        type="button"
+        className={`icpTrigger${statusCard ? " icpTrigger--selected" : ""}`}
+        onClick={openModal}
+        id={id}
+      >
+        {statusCard && triggerThumb ? (
+          <>
+            <img
+              className="icpTrigger__thumb"
+              src={triggerThumb}
+              alt={triggerLabel}
+            />
+            <div className="icpTrigger__info">
+              <span className="icpTrigger__label">{triggerLabel}</span>
+              <span className="icpTrigger__desc">{triggerDesc}</span>
+            </div>
+          </>
+        ) : (
+          <span className="icpTrigger__placeholder">Tap to choose...</span>
+        )}
+        <span className="icpTrigger__chevron material-symbols-outlined">
+          expand_more
+        </span>
+      </button>
+      {helper ? <div className="helper">{helper}</div> : null}
+
+      {open ? (
+        <ModalPortal>
+        <div
+          className="modalOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`${id}-modal-title`}
+        >
+          <div className="glass icpModal">
+            <div className="icpModal__head">
+              <h3 id={`${id}-modal-title`} className="confirmModal__title">
+                {step === "condition"
+                  ? "What illness/condition?"
+                  : label}
+              </h3>
+              <button
+                type="button"
+                className="iconbtn"
+                onClick={closeModal}
+                aria-label="Close"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <div className="icpModal__body">
+            {step === "status" ? (
+              <>
+                <p className="confirmModal__text icpModal__intro">
+                  Pick one below. If you have an illness, you&apos;ll choose the
+                  condition next.
+                </p>
+                <div className="icpGrid">
+                  {HEALTH_STATUS_CARDS.map((card) => {
+                    const isIllness = card.value === ILLNESS_STATUS_VALUE;
+                    const active = healthStatus === card.value;
+                    return (
+                      <button
+                        key={card.value}
+                        type="button"
+                        className={`icpCard${active ? " icpCard--active" : ""}`}
+                        onClick={() =>
+                          isIllness ? pickHasIllness() : pickNoIllness()
+                        }
+                      >
+                        <div className="icpCard__media">
+                          <img
+                            className="icpCard__img"
+                            src={card.img}
+                            alt={card.label}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src =
+                                "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80";
+                            }}
+                          />
+                          <span
+                            className="material-symbols-outlined icpCard__icon"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            {card.icon}
+                          </span>
+                          {healthStatus === card.value ? (
+                            <span className="icpCard__check material-symbols-outlined">
+                              check_circle
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="icpCard__body">
+                          <span className="icpCard__label">{card.label}</span>
+                          <span className="icpCard__desc">{card.desc}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="confirmModal__text icpModal__intro">
+                  Choose your condition, or specify your own.
+                </p>
+                <button
+                  type="button"
+                  className="softbtn"
+                  style={{ marginBottom: 12 }}
+                  onClick={() => {
+                    setStep("status");
+                    setSpecifying(false);
+                  }}
+                >
+                  ← Back to health status
+                </button>
+                <div className="icpGrid">
+                  {HEALTH_CONDITION_CARDS.map((card) => {
+                    const active = card.value === healthCondition;
+                    return (
+                      <button
+                        key={card.value}
+                        type="button"
+                        className={`icpCard${active ? " icpCard--active" : ""}`}
+                        onClick={() => pickCondition(card.value)}
+                      >
+                        <div className="icpCard__media">
+                          <img
+                            className="icpCard__img"
+                            src={card.img}
+                            alt={card.label}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src =
+                                "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&q=80";
+                            }}
+                          />
+                          <span
+                            className="material-symbols-outlined icpCard__icon"
+                            style={{ fontVariationSettings: "'FILL' 1" }}
+                          >
+                            {card.icon}
+                          </span>
+                          {active ? (
+                            <span className="icpCard__check material-symbols-outlined">
+                              check_circle
+                            </span>
+                          ) : null}
+                        </div>
+                        <div className="icpCard__body">
+                          <span className="icpCard__label">{card.label}</span>
+                          <span className="icpCard__desc">{card.desc}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {specifying ? (
+                  <div className="field" style={{ marginTop: 14 }}>
+                    <label className="label" htmlFor={`${id}-custom`}>
+                      Specify your own
+                    </label>
+                    <div className="allergyCustomRow">
+                      <input
+                        id={`${id}-custom`}
+                        className="input"
+                        type="text"
+                        value={customValue}
+                        onChange={(e) => setCustomValue(e.target.value)}
+                        placeholder="e.g. PCOS, Kidney disease..."
+                        autoFocus
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSpecifySubmit();
+                          }
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className="btn"
+                        onClick={handleSpecifySubmit}
+                        disabled={!customValue.trim()}
+                      >
+                        Done
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="softbtn"
+                    style={{ marginTop: 14, width: "100%" }}
+                    onClick={() => setSpecifying(true)}
+                  >
+                    Specify other...
+                  </button>
+                )}
+              </>
+            )}
+            </div>
+          </div>
+        </div>
+        </ModalPortal>
       ) : null}
     </div>
   );
@@ -763,13 +1110,14 @@ export function AllergyPicker({
       </div>
 
       {open ? (
+        <ModalPortal>
         <div
           className="modalOverlay"
           role="dialog"
           aria-modal="true"
           aria-labelledby="allergyModalTitle"
         >
-          <div className="glass icpModal modalScroll">
+          <div className="glass icpModal">
             <div className="icpModal__head">
               <h3 id="allergyModalTitle" className="confirmModal__title">
                 Select Allergies
@@ -783,11 +1131,12 @@ export function AllergyPicker({
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <p className="confirmModal__text">
+            <p className="confirmModal__text icpModal__intro">
               Tap all that apply. Selected cards will be avoided in your meal
               plan.
             </p>
 
+            <div className="icpModal__body">
             <div className="icpGrid">
               {cards.map((card) => {
                 const active = draft.includes(card.value);
@@ -905,8 +1254,10 @@ export function AllergyPicker({
                 Save Allergies
               </button>
             </div>
+            </div>
           </div>
         </div>
+        </ModalPortal>
       ) : null}
     </div>
   );

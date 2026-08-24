@@ -2,24 +2,42 @@ import { isGroqConfigured } from "./groqMealPlan";
 import { MEAL_CATEGORIES, getCategoryBySlug } from "./mealCategories";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
-const GROQ_MODEL = "openai/gpt-oss-120b";
+const GROQ_MODEL = "openai/gpt-oss-20b";
 
 function parseJsonFromContent(content) {
   const text = String(content || "").trim();
   const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
   const raw = fenced ? fenced[1].trim() : text;
-  return JSON.parse(raw);
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+    if (start >= 0 && end > start) {
+      return JSON.parse(raw.slice(start, end + 1));
+    }
+    throw new Error("Failed to parse category JSON.");
+  }
 }
 
 function scoreCategoryLocally(
   category,
-  { bodyGoal, activityLevel, healthStatus, healthCondition, allergies, budget },
+  {
+    bodyGoal,
+    activityLevel,
+    healthStatus,
+    healthCondition,
+    allergies,
+    budget,
+    bmiCategory,
+  },
 ) {
   let score = 40;
   const goal = String(bodyGoal || "").toLowerCase();
   const activity = String(activityLevel || "").toLowerCase();
   const health = String(healthStatus || "").toLowerCase();
   const condition = String(healthCondition || "").toLowerCase();
+  const bmi = String(bmiCategory || "").toLowerCase();
   const tags = category.tags || [];
   const allergyList = allergies || [];
 
@@ -65,9 +83,15 @@ function scoreCategoryLocally(
     }
   }
 
-  if (Number(budget) > 0 && Number(budget) < 250) {
+  if (Number(budget) > 0 && Number(budget) < 1500) {
     if (tags.includes("budget") || tags.includes("affordable") || tags.includes("student")) {
       score += 25;
+    }
+  }
+
+  if (Number(budget) >= 5000) {
+    if (tags.includes("protein") || tags.includes("balanced") || tags.includes("healthy")) {
+      score += 15;
     }
   }
 
@@ -104,6 +128,20 @@ function scoreCategoryLocally(
     }
   }
 
+  if (bmi.includes("underweight")) {
+    if (tags.includes("bulking") || tags.includes("protein") || tags.includes("muscle")) {
+      score += 18;
+    }
+  } else if (bmi.includes("overweight") || bmi.includes("obese")) {
+    if (tags.includes("lose-weight") || tags.includes("cutting") || tags.includes("light")) {
+      score += 18;
+    }
+  } else if (bmi.includes("normal")) {
+    if (tags.includes("balanced") || tags.includes("healthy")) {
+      score += 10;
+    }
+  }
+
   return Math.min(99, score);
 }
 
@@ -131,9 +169,13 @@ function buildLocalExplanation(category, filters) {
     );
   }
 
+  if (filters.bmi && filters.bmiCategory) {
+    parts.push(`BMI ${filters.bmi} (${filters.bmiCategory}).`);
+  }
+
   if (Number(filters.budget) > 0) {
     parts.push(
-      `It also works within your optional budget of ₱${Number(filters.budget).toLocaleString()}.`,
+      `It also works within a budget of about ₱${Number(filters.budget).toLocaleString()}.`,
     );
   } else {
     parts.push(category.description);
@@ -170,8 +212,8 @@ async function recommendWithGroq(filters) {
     : "None";
   const budgetText =
     Number(filters.budget) > 0
-      ? `₱${Number(filters.budget).toLocaleString()} (optional daily budget hint)`
-      : "Not provided (budget is optional)";
+      ? `₱${Number(filters.budget).toLocaleString()} (optional budget hint)`
+      : "Not provided — user sets budget on the Meal Plan page before generating";
 
   const prompt = `You are a Filipino healthy meal planning assistant.
 Based on the user's profile, recommend the best meal categories from the catalog.
@@ -181,8 +223,13 @@ User profile:
 - Activity level: ${filters.activityLevel}
 - Health status: ${filters.healthStatus || "Not specified"}
 - Illness/condition details: ${filters.healthCondition || "None"}
+- Age: ${filters.age || "Not provided"}
+- Gender: ${filters.gender || "Not provided"}
+- Height: ${filters.heightCm ? `${filters.heightCm} cm` : "Not provided"}
+- Weight: ${filters.weightKg ? `${filters.weightKg} kg` : "Not provided"}
+- BMI: ${filters.bmi ? `${filters.bmi} (${filters.bmiCategory || "n/a"})` : "Not provided"}
 - Allergies to avoid: ${allergyText}
-- Optional budget: ${budgetText}
+- Budget hint: ${budgetText}
 
 Available categories:
 ${JSON.stringify(catalog, null, 2)}
@@ -204,7 +251,8 @@ Rules:
 - matchScore must be an integer from 1 to 99
 - explanation must be 1-2 sentences, practical, and mention the user's goal/activity
 - Prefer categories that support the body goal (e.g. bulking/muscle gain, cutting/weight loss)
-- If budget is low, prefer budget-friendly categories
+- Factor in BMI category (underweight → calorie-dense/protein; overweight/obese → lighter/cutting; normal → balanced)
+- If a budget hint is provided and low, prefer budget-friendly categories
 - Respect allergies in the explanation
 - This is general food advice only, not medical advice`;
 
@@ -218,12 +266,12 @@ Rules:
       model: GROQ_MODEL,
       temperature: 0.4,
       max_tokens: 1200,
-      response_format: { type: "json_object" },
+      reasoning_effort: "low",
       messages: [
         {
           role: "system",
           content:
-            "You output only JSON for meal category recommendations with short explanations.",
+            "You output compact JSON only for meal category recommendations with short explanations. No markdown.",
         },
         { role: "user", content: prompt },
       ],

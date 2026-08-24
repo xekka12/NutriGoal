@@ -212,7 +212,7 @@ export default function Login() {
   };
 
   return (
-    <div className="auth">
+    <div className="auth auth--login">
       <div className="auth__card glass">
         <div className="auth__brand">
           <span className="material-symbols-outlined auth__brandIcon">

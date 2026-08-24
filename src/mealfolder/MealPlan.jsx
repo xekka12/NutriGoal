@@ -1,31 +1,44 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   generateMealPlanWithGroq,
+  getMealCalorieTargets,
   isGroqConfigured,
+  sortMealsByDayOrder,
   WEEK_DAYS,
 } from "../lib/groqMealPlan";
-import { saveGeneratedMealPlan, saveMealPlan } from "../lib/mealPlanDb";
 import {
-  getPlanDays,
-  getRecipeTotal,
-  normalizeIngredient,
-  normalizeStep,
-} from "../lib/mealPlanView";
+  describeBudgetTier,
+  getDailyMealBudgets,
+  getSuggestedBudget,
+  MIN_BUDGET_PER_MEAL,
+  MIN_BUDGET_PER_SNACK,
+  SNACK_SUGGESTED_DAILY_ADD,
+} from "../lib/budgetTier";
+import { buildLocalRecipe } from "../lib/localRecipes";
+import { saveGeneratedMealPlan, saveMealPlan, updateMealPlan } from "../lib/mealPlanDb";
 import {
   ACTIVITY_CARDS,
   ACTIVITY_OPTIONS,
   AllergyPicker,
   GOAL_CARDS,
   GOAL_OPTIONS,
-  HEALTH_CONDITION_CARDS,
-  HEALTH_CONDITION_OPTIONS,
-  HEALTH_STATUS_CARDS,
   HEALTH_STATUS_OPTIONS,
+  HealthStatusPicker,
   ILLNESS_STATUS_VALUE,
   ImageCardPicker,
   SpecifiableSelect,
 } from "./formFields";
+import GenerateProgressModal from "./GenerateProgressModal";
+import MealPlanDetails from "./MealPlanDetails";
+import BmiCalculator from "./BmiCalculator";
+import {
+  classifyBmi,
+  computeBmi,
+  estimateDailyCalories,
+  getBmiGoalCaution,
+  validateBmiInputs,
+} from "./bmiUtils";
 
 const MEALS = ["Breakfast", "Lunch", "Dinner"];
 const PROTEIN_OPTIONS = [
@@ -74,156 +87,8 @@ const COOKING_METHOD_OPTIONS = [
   "Roasted",
   "Baked",
 ];
-const MIN_BUDGET_PER_PERSON_PER_MEAL = 40;
+const PEOPLE_COUNT = 1;
 const LAST_SELECTION_KEY = "lastMealPlanSelection";
-
-function makeRecipe(meal, categoryTitle, variant) {
-  const base = String(categoryTitle || "").toLowerCase();
-
-  if (base.includes("vegetarian")) {
-    if (meal === "Breakfast") {
-      return {
-        name: variant === 1 ? "Veggie Omelet (No meat)" : "Oat & Banana Bowl",
-        ingredients:
-          variant === 1
-            ? [
-                "2 eggs",
-                "1 cup spinach",
-                "1 small tomato (chopped)",
-                "1/4 onion (chopped)",
-                "Salt & pepper",
-                "1 tsp oil",
-              ]
-            : ["1/2 cup oats", "1 banana", "1 cup milk/water", "Honey (optional)"],
-        steps:
-          variant === 1
-            ? [
-                "Saute onion and tomato for 1–2 minutes.",
-                "Add spinach and cook until wilted.",
-                "Beat eggs with salt & pepper, then pour into pan.",
-                "Cook until set, fold, and serve.",
-              ]
-            : [
-                "Cook oats with milk/water until thick.",
-                "Slice banana and mix in.",
-                "Add honey or cinnamon if you want.",
-              ],
-      };
-    }
-    return {
-      name: variant === 1 ? "Ginisang Gulay" : "Tofu & Veggie Stir-fry",
-      ingredients:
-        variant === 1
-          ? [
-              "Assorted vegetables (kangkong/pechay/carrot)",
-              "2 cloves garlic",
-              "1/2 onion",
-              "1 tbsp soy sauce",
-              "Salt & pepper",
-              "1 tsp oil",
-            ]
-          : [
-              "200g tofu (cubed)",
-              "Assorted vegetables",
-              "2 cloves garlic",
-              "1 tbsp soy sauce",
-              "1 tsp oil",
-            ],
-      steps:
-        variant === 1
-          ? [
-              "Saute garlic and onion.",
-              "Add vegetables and stir for 3–5 minutes.",
-              "Season with soy sauce, salt & pepper.",
-              "Cook until tender then serve.",
-            ]
-          : [
-              "Pan-fry tofu until lightly golden.",
-              "Saute garlic, add vegetables, then add tofu.",
-              "Season with soy sauce, cook 2–3 minutes, serve.",
-            ],
-    };
-  }
-
-  if (base.includes("high-protein")) {
-    return {
-      name: variant === 1 ? "Chicken & Veg Bowl" : "Egg & Tuna Plate",
-      ingredients:
-        variant === 1
-          ? ["150g chicken breast", "1 cup mixed veggies", "Salt & pepper", "1 tsp oil"]
-          : ["2 eggs", "1 small can tuna", "Salt & pepper", "Rice/veggies (optional)"],
-      steps:
-        variant === 1
-          ? [
-              "Season chicken with salt & pepper.",
-              "Cook chicken in a pan until done.",
-              "Saute veggies quickly.",
-              "Combine and serve.",
-            ]
-          : [
-              "Boil or fry eggs to your liking.",
-              "Drain tuna and season lightly.",
-              "Serve together (add rice/veggies if available).",
-            ],
-    };
-  }
-
-  if (base.includes("low-budget")) {
-    return {
-      name: variant === 1 ? "Egg + Rice" : "Mongo Guisado (Simple)",
-      ingredients:
-        variant === 1
-          ? ["1–2 eggs", "1 cup rice", "Salt"]
-          : ["1 cup mung beans", "Garlic & onion", "Water", "Salt", "Optional greens"],
-      steps:
-        variant === 1
-          ? ["Cook rice.", "Cook eggs (boil/fry).", "Serve together."]
-          : [
-              "Boil mung beans until soft.",
-              "Saute garlic & onion, add beans and a bit of broth.",
-              "Season, add greens, simmer 2 minutes.",
-            ],
-    };
-  }
-
-  if (base.includes("mixed")) {
-    return {
-      name: variant === 1 ? "Chicken + Rice Plate" : "Fish + Veg Bowl",
-      ingredients:
-        variant === 1
-          ? ["Chicken (any cut)", "Rice", "Garlic & onion", "Salt & pepper"]
-          : ["Fish (fried/grilled)", "Vegetables", "Rice (optional)", "Salt & pepper"],
-      steps:
-        variant === 1
-          ? [
-              "Season chicken and cook until done.",
-              "Cook rice.",
-              "Serve chicken with rice.",
-            ]
-          : [
-              "Cook fish (grill/fry).",
-              "Saute vegetables lightly.",
-              "Serve together (add rice if you want).",
-            ],
-    };
-  }
-
-  return {
-    name: variant === 1 ? `${meal} Balanced Plate` : `${meal} Simple Bowl`,
-    ingredients: [
-      "1 protein (egg/chicken/fish)",
-      "1 carb (rice/oats)",
-      "1–2 vegetables",
-      "Salt & pepper",
-    ],
-    steps: [
-      "Cook your protein.",
-      "Prepare your carb.",
-      "Add vegetables and season.",
-      "Combine and serve.",
-    ],
-  };
-}
 
 export default function MealPlan() {
   const location = useLocation();
@@ -249,12 +114,6 @@ export default function MealPlan() {
       : typeof savedSelection?.budget === "number"
         ? savedSelection.budget
         : 0;
-  const initialPeople =
-    typeof state?.people === "number"
-      ? state.people
-      : typeof savedSelection?.people === "number"
-        ? savedSelection.people
-        : 1;
   const initialMeals = Array.isArray(state?.meals)
     ? state.meals
     : Array.isArray(savedSelection?.meals)
@@ -280,13 +139,21 @@ export default function MealPlan() {
     : Array.isArray(savedSelection?.allergies)
       ? savedSelection.allergies
       : [];
+  const initialAge =
+    state?.age ?? savedSelection?.age ?? "";
+  const initialGender =
+    state?.gender ?? savedSelection?.gender ?? "female";
+  const initialHeightCm =
+    state?.heightCm ?? savedSelection?.heightCm ?? "";
+  const initialWeightKg =
+    state?.weightKg ?? savedSelection?.weightKg ?? "";
   const initialPlanType =
     state?.planType ?? savedSelection?.planType ?? "daily";
+  const initialIncludeSnack = Boolean(
+    state?.includeSnack ?? savedSelection?.includeSnack,
+  );
   const lockedProfile = Boolean(
     state?.lockedProfile ?? savedSelection?.lockedProfile,
-  );
-  const budgetLocked = Boolean(
-    state?.budgetLocked ?? savedSelection?.budgetLocked,
   );
 
   useMemo(() => {
@@ -297,7 +164,7 @@ export default function MealPlan() {
           categorySlug,
           categoryTitle,
           budget: initialBudget,
-          people: initialPeople,
+          people: PEOPLE_COUNT,
           meals: initialMeals,
           proteinSource: initialProteinSource,
           carbSource: initialCarbSource,
@@ -308,9 +175,13 @@ export default function MealPlan() {
           healthStatus: initialHealthStatus,
           healthCondition: initialHealthCondition,
           allergies: initialAllergies,
+          age: initialAge,
+          gender: initialGender,
+          heightCm: initialHeightCm,
+          weightKg: initialWeightKg,
           planType: initialPlanType,
+          includeSnack: initialIncludeSnack,
           lockedProfile,
-          budgetLocked,
         }),
       );
     } catch {
@@ -320,17 +191,19 @@ export default function MealPlan() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [budget, setBudget] = useState(initialBudget ? String(initialBudget) : "");
+  const [budget, setBudget] = useState(() => {
+    if (initialBudget > 0) return String(initialBudget);
+    return String(
+      getSuggestedBudget({
+        mealsCount: (initialMeals ?? ["Lunch"]).length,
+        planType: initialPlanType,
+      }).total,
+    );
+  });
   const budgetNumber = useMemo(() => {
     const n = Number(budget);
     return Number.isFinite(n) ? n : 0;
   }, [budget]);
-
-  const [people, setPeople] = useState(String(initialPeople || 1));
-  const peopleNumber = useMemo(() => {
-    const n = Number(people);
-    return Number.isFinite(n) ? n : 0;
-  }, [people]);
 
   const [selectedMeals, setSelectedMeals] = useState(initialMeals ?? ["Lunch"]);
   const [proteinSource, setProteinSource] = useState(initialProteinSource);
@@ -342,14 +215,87 @@ export default function MealPlan() {
   const [healthStatus, setHealthStatus] = useState(initialHealthStatus);
   const [healthCondition, setHealthCondition] = useState(initialHealthCondition);
   const [allergies, setAllergies] = useState(initialAllergies);
+  const [bmiAge, setBmiAge] = useState(
+    initialAge === "" || initialAge == null ? "" : String(initialAge)
+  );
+  const [bmiHeightCm, setBmiHeightCm] = useState(
+    initialHeightCm === "" || initialHeightCm == null
+      ? ""
+      : String(initialHeightCm)
+  );
+  const [bmiWeightKg, setBmiWeightKg] = useState(
+    initialWeightKg === "" || initialWeightKg == null
+      ? ""
+      : String(initialWeightKg)
+  );
+  const [bmiGender, setBmiGender] = useState(initialGender || "female");
   const [planType, setPlanType] = useState(initialPlanType);
+  const [includeSnack, setIncludeSnack] = useState(initialIncludeSnack);
   const [error, setError] = useState("");
   const [generated, setGenerated] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [generateProgress, setGenerateProgress] = useState(0);
+  const [generateProgressLabel, setGenerateProgressLabel] = useState("");
   const [saving, setSaving] = useState(false);
+  const [pendingBmiCaution, setPendingBmiCaution] = useState(null);
 
   const isWeekly = planType === "weekly";
   const dayCount = isWeekly ? WEEK_DAYS.length : 1;
+
+  const suggestedBudget = useMemo(
+    () =>
+      getSuggestedBudget({
+        mealsCount: selectedMeals.length,
+        planType,
+        includeSnack,
+      }),
+    [selectedMeals.length, planType, includeSnack],
+  );
+
+  const minimumBudget = suggestedBudget.minimum;
+
+  useEffect(() => {
+    setBudget(String(suggestedBudget.total));
+  }, [suggestedBudget.total]);
+
+  const budgetTier = useMemo(
+    () =>
+      budgetNumber > 0
+        ? describeBudgetTier({
+            budget: budgetNumber,
+            mealsCount: selectedMeals.length,
+            planType,
+            includeSnack,
+          })
+        : null,
+    [budgetNumber, selectedMeals.length, planType, includeSnack],
+  );
+
+  const orderedMeals = useMemo(
+    () => sortMealsByDayOrder(selectedMeals),
+    [selectedMeals]
+  );
+
+  const generationMeals = useMemo(
+    () =>
+      includeSnack
+        ? sortMealsByDayOrder([...orderedMeals, "Snack"])
+        : orderedMeals,
+    [includeSnack, orderedMeals],
+  );
+
+  const calorieTarget = useMemo(
+    () =>
+      estimateDailyCalories({
+        age: bmiAge,
+        heightCm: bmiHeightCm,
+        weightKg: bmiWeightKg,
+        gender: bmiGender,
+        activityLevel,
+        bodyGoal,
+      })?.target ?? 0,
+    [bmiAge, bmiHeightCm, bmiWeightKg, bmiGender, activityLevel, bodyGoal]
+  );
 
   const toggleMeal = (meal) => {
     setSelectedMeals((prev) => {
@@ -359,21 +305,30 @@ export default function MealPlan() {
     });
   };
 
-  const buildLocalRecommendations = (variantOffset = 0) => {
+  const buildLocalRecommendations = (dayIndex = 0) => {
     const dailyBudget = Math.max(1, Math.floor(budgetNumber / dayCount));
-    const perPerson = Math.max(1, Math.floor(dailyBudget / peopleNumber));
-    const perMeal = Math.max(1, Math.floor(perPerson / selectedMeals.length));
+    const mealBudgets = getDailyMealBudgets({
+      meals: generationMeals,
+      dailyBudget,
+    });
+    const mealCalories = getMealCalorieTargets(generationMeals, calorieTarget);
 
-    return selectedMeals.map((meal) => ({
-      meal,
-      suggestedBudget: perMeal,
-      recipes: isWeekly
-        ? [makeRecipe(meal, categoryTitle, (variantOffset % 2) + 1)]
-        : [
-            makeRecipe(meal, categoryTitle, 1),
-            makeRecipe(meal, categoryTitle, 2),
-          ],
-    }));
+    return generationMeals.map((meal, mealIndex) => {
+      const targetCalories = mealCalories[mealIndex]?.calories ?? 0;
+      const recipeOptions = {
+        meal,
+        categoryTitle,
+        dayIndex,
+        targetCalories,
+        allergies,
+      };
+
+      return {
+        meal,
+        suggestedBudget: mealBudgets[meal] ?? dailyBudget,
+        recipes: [buildLocalRecipe({ ...recipeOptions, variant: mealIndex })],
+      };
+    });
   };
 
   const buildLocalDays = () => {
@@ -387,7 +342,7 @@ export default function MealPlan() {
     }));
   };
 
-  const generate = async () => {
+  const generate = async ({ skipBmiCaution = false } = {}) => {
     setError("");
     setGenerated(null);
 
@@ -418,6 +373,21 @@ export default function MealPlan() {
       setError("Please specify your illness or medical condition.");
       return;
     }
+
+    const bmiError = validateBmiInputs({
+      age: bmiAge,
+      heightCm: bmiHeightCm,
+      weightKg: bmiWeightKg,
+      gender: bmiGender,
+    });
+    if (bmiError) {
+      setError(bmiError);
+      return;
+    }
+
+    const bmiValue = computeBmi(bmiHeightCm, bmiWeightKg);
+    const bmiCategory = classifyBmi(bmiValue);
+
     if (!String(proteinSource || "").trim()) {
       setError("Please choose or specify a protein source.");
       return;
@@ -438,25 +408,32 @@ export default function MealPlan() {
       setError("Please enter your budget (must be greater than 0).");
       return;
     }
-    if (peopleNumber < 1) {
-      setError("Please enter how many people will eat (at least 1).");
-      return;
-    }
 
-    const minimumBudget =
-      peopleNumber *
-      selectedMeals.length *
-      dayCount *
-      MIN_BUDGET_PER_PERSON_PER_MEAL;
     if (budgetNumber < minimumBudget) {
-      const rangeText = isWeekly ? "for the whole week " : "";
+      const rangeText = isWeekly ? "for the whole week " : "for the day ";
+      const snackHint = includeSnack
+        ? ` (includes optional snack at ₱${MIN_BUDGET_PER_SNACK}/day)`
+        : "";
       setError(
-        `Your budget is too low. For ${peopleNumber} person(s) and ${selectedMeals.length} meal(s) per day ${rangeText}, please enter at least ₱${minimumBudget.toLocaleString()} (about ₱${MIN_BUDGET_PER_PERSON_PER_MEAL} per person per meal).`
+        `Your budget is too low. For ${selectedMeals.length} meal(s) per day${includeSnack ? " + snack" : ""} ${rangeText}, please enter at least ₱${minimumBudget.toLocaleString()} (about ₱${MIN_BUDGET_PER_MEAL} per meal${snackHint}).`,
       );
       return;
     }
 
+    const caution = getBmiGoalCaution(bodyGoal, bmiValue, bmiCategory);
+    if (!skipBmiCaution && !lockedProfile && caution) {
+      setPendingBmiCaution(caution);
+      return;
+    }
+
     setLoading(true);
+    setGenerateProgress(0);
+    setGenerateProgressLabel("Starting...");
+
+    const reportProgress = (pct, label) => {
+      setGenerateProgress(pct);
+      setGenerateProgressLabel(label);
+    };
 
     let days = buildLocalDays();
     let nutritionTip = "";
@@ -467,8 +444,7 @@ export default function MealPlan() {
         const result = await generateMealPlanWithGroq({
           categoryTitle,
           budget: budgetNumber,
-          people: peopleNumber,
-          meals: selectedMeals,
+          meals: generationMeals,
           proteinSource: String(proteinSource).trim(),
           carbSource: String(carbSource).trim(),
           restriction: String(restriction).trim(),
@@ -481,18 +457,39 @@ export default function MealPlan() {
               ? String(healthCondition).trim()
               : "",
           allergies,
+          age: Number(bmiAge),
+          gender: bmiGender,
+          heightCm: Number(bmiHeightCm),
+          weightKg: Number(bmiWeightKg),
+          bmi: Number(bmiValue.toFixed(1)),
+          bmiCategory: bmiCategory?.label || "",
+          calorieTarget,
           planType,
+          onProgress: reportProgress,
         });
         days = result.days;
         nutritionTip = result.nutritionTip;
         source = "groq";
       } catch (groqError) {
+        const raw = String(groqError.message || "");
+        const waitMatch = raw.match(/try again in\s+([\d.]+)\s*s/i);
+        const waitHint = waitMatch
+          ? ` Wait about ${Math.ceil(Number(waitMatch[1]))}s then try again.`
+          : " Wait a bit then try again.";
+        const isRateLimit = /rate limit|tokens per minute|tpm/i.test(raw);
+
         setError(
-          `AI generator failed (${groqError.message}). Showing built-in meals instead.`
+          isRateLimit
+            ? `AI is temporarily rate-limited.${waitHint} Showing built-in sample meals for now (not AI-generated).`
+            : `AI generator failed. Showing built-in sample meals instead. (${raw})`
         );
         days = buildLocalDays();
         source = "local-fallback";
+        reportProgress(100, "Showing sample meals");
       }
+    } else {
+      reportProgress(40, "Picking sample meals...");
+      reportProgress(100, "Complete!");
     }
 
     const now = Date.now();
@@ -500,9 +497,10 @@ export default function MealPlan() {
       id: `${now}-${Math.random().toString(16).slice(2)}`,
       categorySlug: categorySlug || "custom",
       categoryTitle,
-      meals: selectedMeals,
+      meals: generationMeals,
+      includeSnack,
       budget: budgetNumber,
-      people: peopleNumber,
+      people: PEOPLE_COUNT,
       planType,
       days,
       recommendations: days[0]?.recommendations ?? [],
@@ -520,6 +518,12 @@ export default function MealPlan() {
             ? String(healthCondition).trim()
             : "",
         allergies,
+        age: Number(bmiAge),
+        gender: bmiGender,
+        heightCm: Number(bmiHeightCm),
+        weightKg: Number(bmiWeightKg),
+        bmi: Number(bmiValue.toFixed(1)),
+        bmiCategory: bmiCategory?.label || "",
       },
       source,
       createdAt: now,
@@ -554,6 +558,18 @@ export default function MealPlan() {
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleGeneratedPlanUpdate = async (updatedPlan) => {
+    setGenerated(updatedPlan);
+    if (updatedPlan.dbId) {
+      try {
+        const saved = await updateMealPlan(updatedPlan);
+        setGenerated(saved);
+      } catch (updateError) {
+        setError(`Meal updated locally but could not sync: ${updateError.message}`);
+      }
     }
   };
 
@@ -599,36 +615,38 @@ export default function MealPlan() {
           </div>
 
           <div className="formgrid formgrid--2">
-            <ImageCardPicker
+            <HealthStatusPicker
               id="healthStatus"
-              label="Health Status"
-              value={healthStatus}
-              onChange={setHealthStatus}
-              cards={HEALTH_STATUS_CARDS}
-              allowSpecify={false}
-              helper="Do you currently have an illness or medical condition?"
+              healthStatus={healthStatus}
+              healthCondition={healthCondition}
+              onChange={({ healthStatus: nextStatus, healthCondition: nextCondition }) => {
+                setHealthStatus(nextStatus);
+                setHealthCondition(nextCondition);
+              }}
               locked={lockedProfile}
             />
           </div>
-
-          {healthStatus === ILLNESS_STATUS_VALUE ? (
-            <div className="formgrid formgrid--2">
-              <ImageCardPicker
-                id="healthCondition"
-                label="What illness/condition?"
-                value={healthCondition}
-                onChange={setHealthCondition}
-                cards={HEALTH_CONDITION_CARDS}
-                helper="Choose your condition, or specify your own."
-                locked={lockedProfile}
-              />
-            </div>
-          ) : null}
 
           <AllergyPicker
             allergies={allergies}
             onChange={setAllergies}
             locked={lockedProfile}
+          />
+
+          <BmiCalculator
+            age={bmiAge}
+            heightCm={bmiHeightCm}
+            weightKg={bmiWeightKg}
+            gender={bmiGender}
+            activityLevel={activityLevel}
+            bodyGoal={bodyGoal}
+            locked={lockedProfile}
+            onChange={(next) => {
+              setBmiAge(next.age);
+              setBmiHeightCm(next.heightCm);
+              setBmiWeightKg(next.weightKg);
+              setBmiGender(next.gender);
+            }}
           />
 
           <div className="field">
@@ -656,55 +674,6 @@ export default function MealPlan() {
                 ? "You will get a different set of meals for each of the 7 days."
                 : "You will get meal recommendations for one day."}
             </div>
-          </div>
-
-          <div className="field">
-            <label className="label" htmlFor="planBudget">
-              {isWeekly ? "Budget for the whole week" : "Budget for the day"}
-            </label>
-            <div className="inputwrap">
-              <span className="inputwrap__prefix" aria-hidden="true">
-                ₱
-              </span>
-              <input
-                id="planBudget"
-                className="input"
-                type="number"
-                inputMode="numeric"
-                placeholder="Enter your budget"
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                min={1}
-                disabled={budgetLocked}
-                readOnly={budgetLocked}
-              />
-            </div>
-            <div className="helper">
-              {budgetLocked
-                ? "Budget is locked from your Dashboard filters."
-                : `Minimum: ₱${(
-                    peopleNumber *
-                      selectedMeals.length *
-                      dayCount *
-                      MIN_BUDGET_PER_PERSON_PER_MEAL || 0
-                  ).toLocaleString()} for your current selection.`}
-            </div>
-          </div>
-
-          <div className="field">
-            <label className="label" htmlFor="people">
-              How many people will eat?
-            </label>
-            <input
-              id="people"
-              className="input"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              placeholder="e.g. 2"
-              value={people}
-              onChange={(e) => setPeople(e.target.value)}
-            />
           </div>
 
           <div className="field">
@@ -771,6 +740,82 @@ export default function MealPlan() {
             />
           </div>
 
+          <div className="field">
+            <div className="label">Optional Healthy Snack</div>
+            <div className="pillgrid">
+              <button
+                type="button"
+                className={!includeSnack ? "pill pill--active" : "pill"}
+                onClick={() => setIncludeSnack(false)}
+                aria-pressed={!includeSnack}
+              >
+                No snack
+              </button>
+              <button
+                type="button"
+                className={includeSnack ? "pill pill--active" : "pill"}
+                onClick={() => setIncludeSnack(true)}
+                aria-pressed={includeSnack}
+              >
+                Include snack
+              </button>
+            </div>
+            <div className="helper">
+              Optional lang — kung gusto mo ng meryenda, magdadagdag ng isang
+              healthy snack bawat araw (kasama na sa budget, +~₱
+              {SNACK_SUGGESTED_DAILY_ADD}/day sa suggested total) based sa goal
+              at health profile mo.
+            </div>
+          </div>
+
+          <div className="field">
+            <label className="label" htmlFor="planBudget">
+              {isWeekly ? "Budget for the whole week (required)" : "Budget for the day (required)"}
+            </label>
+            <div className="inputwrap">
+              <span className="inputwrap__prefix" aria-hidden="true">
+                ₱
+              </span>
+              <input
+                id="planBudget"
+                className="input"
+                type="number"
+                inputMode="numeric"
+                placeholder={String(suggestedBudget.total)}
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                min={minimumBudget}
+                required
+              />
+            </div>
+            <div className="helper">
+              Suggested: ₱{suggestedBudget.total.toLocaleString()} for{" "}
+              {selectedMeals.length} meal
+              {selectedMeals.length === 1 ? "" : "s"}
+              {includeSnack ? " + snack" : ""}
+              {isWeekly ? " × 7 days" : ""} (~₱
+              {suggestedBudget.perMeal.toLocaleString()}/slot). Minimum: ₱
+              {minimumBudget.toLocaleString()} (₱{MIN_BUDGET_PER_MEAL}/meal
+              {includeSnack ? `, ₱${MIN_BUDGET_PER_SNACK}/snack — included in total` : ""}).
+              {includeSnack ? (
+                <>
+                  {" "}
+                  Snack share ay kasama na sa budget — hindi dagdag sa labas.
+                </>
+              ) : null}
+              Auto-updates when you change plan duration or meals — you can
+              still edit if you want to spend more.
+              {budgetNumber > 0 && budgetTier ? (
+                <>
+                  {" "}
+                  Your entry: ~₱{budgetTier.perMeal.toLocaleString()}/meal (
+                  {budgetTier.label}
+                  {budgetTier.perMeal >= 150 ? " — tastier meals" : ""}).
+                </>
+              ) : null}
+            </div>
+          </div>
+
           {error ? <div className="error">{error}</div> : null}
 
           {!isGroqConfigured() ? (
@@ -778,6 +823,12 @@ export default function MealPlan() {
               AI meal generator is not configured. Using built-in meals until then.
             </div>
           ) : null}
+
+          <GenerateProgressModal
+            open={loading}
+            percent={generateProgress}
+            label={generateProgressLabel}
+          />
 
           <button
             className="primarybtn"
@@ -803,43 +854,39 @@ export default function MealPlan() {
           {generated ? (
             <div className="glass plan__result" style={{ padding: 18 }}>
               <div className="plan__resultHead">
-                <div>
-                  <div className="label">
+                <div className="planSummary">
+                  <div className="planSummary__heading">
+                    <span className="material-symbols-outlined">restaurant_menu</span>
+                    <div>
+                      <span className="planSummary__eyebrow">Your personalized plan</span>
+                      <h3>
                     {generated.planType === "weekly"
                       ? "7-Day Meal Plan"
-                      : "Recommendations"}
+                      : "Daily Meal Recommendations"}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="helper" style={{ marginTop: 4 }}>
-                    Budget: ₱{generated.budget.toLocaleString()} • People:{" "}
-                    {generated.people} • Meals: {generated.meals.join(" + ")}
+
+                  <div className="planSummary__facts">
+                    <div><span>Budget</span><strong>₱{generated.budget.toLocaleString()}</strong></div>
+                    <div><span>Servings</span><strong>1 person</strong></div>
+                    <div><span>Goal</span><strong>{generated.filters.bodyGoal}</strong></div>
+                    <div>
+                      <span>Daily target</span>
+                      <strong>
+                        {calorieTarget > 0
+                          ? `${calorieTarget.toLocaleString()} kcal`
+                          : "Not set"}
+                      </strong>
+                    </div>
                   </div>
-                  <div className="helper" style={{ marginTop: 4 }}>
-                    Activity: {generated.filters.activityLevel} • Goal:{" "}
-                    {generated.filters.bodyGoal} • Health:{" "}
-                    {generated.filters.healthStatus || "Not specified"}
-                    {generated.filters.healthCondition
-                      ? ` (${generated.filters.healthCondition})`
-                      : ""}
-                    {" • Allergies: "}
-                    {generated.filters.allergies?.length
-                      ? generated.filters.allergies.join(", ")
-                      : "None"}
-                  </div>
-                  <div className="helper" style={{ marginTop: 4 }}>
-                    Protein: {generated.filters.proteinSource} • Carbs:{" "}
-                    {generated.filters.carbSource} • Restriction:{" "}
-                    {generated.filters.restriction} • Method:{" "}
-                    {generated.filters.cookingMethod}
-                  </div>
+
                   {generated.nutritionTip ? (
-                    <div className="helper" style={{ marginTop: 4 }}>
-                      Tip: {generated.nutritionTip}
+                    <div className="planSummary__tip">
+                      <span className="material-symbols-outlined">lightbulb</span>
+                      <span>{generated.nutritionTip}</span>
                     </div>
                   ) : null}
-                  <div className="helper" style={{ marginTop: 4 }}>
-                    Ingredient prices are estimates and may vary by location,
-                    season, and store.
-                  </div>
                 </div>
                 <button
                   className="softbtn softbtn--light"
@@ -851,94 +898,62 @@ export default function MealPlan() {
                 </button>
               </div>
 
-              {getPlanDays(generated).map((dayPlan, dayIndex) => (
-                <div className="planDay" key={dayPlan.day || `day-${dayIndex}`}>
-                  {dayPlan.day ? (
-                    <div className="planDay__title">{dayPlan.day}</div>
-                  ) : null}
-                  <div className="plan__recs">
-                    {dayPlan.recommendations.map((r) => (
-                      <div className="plan__recCard" key={r.meal}>
-                        <div className="plan__recTitle">
-                          {r.meal} • Suggested: ₱
-                          {Number(r.suggestedBudget || 0).toLocaleString()}
-                        </div>
-                        <div className="plan__recipes">
-                          {r.recipes.map((recipe) => (
-                            <div className="recipe" key={recipe.name}>
-                              <div className="recipe__name">
-                                {recipe.name}{" "}
-                                {getRecipeTotal(recipe) > 0 ? (
-                                  <span className="helper">
-                                    • Estimated total: ₱
-                                    {getRecipeTotal(recipe).toLocaleString()}
-                                  </span>
-                                ) : null}
-                                {recipe.estimatedCookTime ? (
-                                  <span className="helper">
-                                    {" "}
-                                    • Cook time: {recipe.estimatedCookTime}
-                                  </span>
-                                ) : null}
-                                {recipe.estimatedCalories > 0 ? (
-                                  <span className="helper">
-                                    {" "}
-                                    • ~{recipe.estimatedCalories.toLocaleString()}{" "}
-                                    kcal
-                                  </span>
-                                ) : null}
-                              </div>
-                              <div className="recipe__cols">
-                                <div className="recipe__col">
-                                  <div className="recipe__label">
-                                    Ingredients
-                                  </div>
-                                  <ul className="plan__list">
-                                    {recipe.ingredients.map((ing) => {
-                                      const ingredient =
-                                        normalizeIngredient(ing);
-                                      return (
-                                        <li key={ingredient.item}>
-                                          {ingredient.item}
-                                          {ingredient.estimatedPrice > 0
-                                            ? ` — ₱${ingredient.estimatedPrice.toLocaleString()}`
-                                            : ""}
-                                        </li>
-                                      );
-                                    })}
-                                  </ul>
-                                </div>
-                                <div className="recipe__col">
-                                  <div className="recipe__label">
-                                    How to cook
-                                  </div>
-                                  <ol className="plan__olist">
-                                    {recipe.steps.map((st, index) => {
-                                      const step = normalizeStep(st);
-                                      return (
-                                        <li key={`${step.instruction}-${index}`}>
-                                          {step.instruction}
-                                          {step.estimatedTime
-                                            ? ` (${step.estimatedTime})`
-                                            : ""}
-                                        </li>
-                                      );
-                                    })}
-                                  </ol>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
+              <MealPlanDetails
+                plan={generated}
+                editable
+                showProfile={false}
+                onPlanUpdate={handleGeneratedPlanUpdate}
+              />
             </div>
           ) : null}
         </div>
       </div>
+
+      {pendingBmiCaution ? (
+        <div
+          className="modalOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mealPlanBmiCautionTitle"
+        >
+          <div className="confirmModal glass bmiCautionModal">
+            <span
+              className="material-symbols-outlined bmiCautionModal__icon"
+              aria-hidden="true"
+            >
+              warning
+            </span>
+            <h3 id="mealPlanBmiCautionTitle" className="confirmModal__title">
+              {pendingBmiCaution.title}
+            </h3>
+            <p className="confirmModal__text">
+              {pendingBmiCaution.message}
+            </p>
+            <p className="bmiCautionModal__note">
+              This is a general BMI screening only, not medical advice.
+            </p>
+            <div className="confirmModal__actions">
+              <button
+                className="softbtn"
+                type="button"
+                onClick={() => setPendingBmiCaution(null)}
+              >
+                Change My Goal
+              </button>
+              <button
+                className="primarybtn"
+                type="button"
+                onClick={() => {
+                  setPendingBmiCaution(null);
+                  generate({ skipBmiCaution: true });
+                }}
+              >
+                Yes, Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
