@@ -215,12 +215,12 @@ export default function Login() {
     <div className="auth auth--login">
       <div className="auth__card glass">
         <div className="auth__brand">
+          <div className="auth__brandName">Smart Meal Planner</div>
           <img
             className="auth__brandLogo"
             src="/nutrigoal-logo.png"
             alt=""
           />
-          <div className="auth__brandName">Smart Meal Planner</div>
         </div>
 
         <h1 className="auth__title">Welcome back</h1>
