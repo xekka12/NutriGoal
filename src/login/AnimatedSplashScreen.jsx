@@ -143,35 +143,6 @@ function LeafSvg({ width = 120, type = "leaf", flip = false }) {
   );
 }
 
-function ForkLeafLogo({ dark = false }) {
-  return (
-    <svg
-      className={`splashLogoMark${dark ? " splashLogoMark--dark" : ""}`}
-      viewBox="0 0 72 72"
-      aria-hidden="true"
-    >
-      <path
-        d="M22 12v18c0 4 2.2 7 6 8.2V60"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M18 12v10M22 12v10M26 12v10"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="3.2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M46 16c10 8 14 22 8 32-8 12-22 8-26-2 8 2 16-2 18-10 2-8-2-16-10-20 6-2 8 0 10 0Z"
-        fill="currentColor"
-      />
-    </svg>
-  );
-}
-
 function LeafCluster({ items, side }) {
   return (
     <div className={`splashScreen__leafLayer splashScreen__leafLayer--${side}`}>
@@ -333,7 +304,11 @@ export default function AnimatedSplashScreen({ onOpening, onComplete }) {
       >
         <div className="splashScreen__logoGlow" />
         <div className="splashScreen__logo">
-          <ForkLeafLogo dark={opening} />
+          <img
+            className="splashScreen__logoImg"
+            src="/nutrigoal-logo.png"
+            alt=""
+          />
         </div>
         <h1 className="splashScreen__title">Smart Meal Planner</h1>
         {!showLoading && !complete ? (

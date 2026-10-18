@@ -270,9 +270,11 @@ export default function Register() {
     <div className="auth">
       <div className="auth__card glass">
         <div className="auth__brand">
-          <span className="material-symbols-outlined auth__brandIcon">
-            restaurant_menu
-          </span>
+          <img
+            className="auth__brandLogo"
+            src="/nutrigoal-logo.png"
+            alt=""
+          />
           <div className="auth__brandName">Smart Meal Planner</div>
         </div>
 

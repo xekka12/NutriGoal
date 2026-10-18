@@ -185,35 +185,27 @@
 
 .splashScreen__logo {
   position: relative;
-  width: 88px;
-  height: 88px;
-  border-radius: 999px;
+  width: 148px;
+  height: 148px;
+  border-radius: 0;
   display: grid;
   place-items: center;
   margin-bottom: 16px;
-  background: rgba(6, 78, 59, 0.28);
-  border: 1px solid rgba(167, 243, 208, 0.4);
-  box-shadow: 0 0 32px rgba(52, 211, 153, 0.32);
-  transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.splashScreen__logoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .splashScreen--opening .splashScreen__logo {
-  background: rgba(255, 255, 255, 0.72);
-  border-color: rgba(21, 128, 61, 0.25);
-  box-shadow: 0 10px 28px rgba(21, 128, 61, 0.12);
-}
-
-.splashLogoMark {
-  width: 46px;
-  height: 46px;
-  color: #ecfdf5;
-  filter: drop-shadow(0 0 8px rgba(110, 231, 183, 0.55));
-  transition: color 0.8s ease, filter 0.8s ease;
-}
-
-.splashLogoMark--dark {
-  color: #166534;
-  filter: none;
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .splashScreen__title {
@@ -561,7 +553,7 @@
   }
 
   .splashScreen__logo {
-    width: 76px;
-    height: 76px;
+    width: 112px;
+    height: 112px;
   }
 }

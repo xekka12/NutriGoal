@@ -555,9 +555,11 @@ export default function MealLayout() {
       <header className="topappbar">
         <nav className="topappbar__inner">
           <div className="brand">
-            <span className="material-symbols-outlined brand__icon">
-              restaurant_menu
-            </span>
+            <img
+              className="brand__logo"
+              src="/nutrigoal-logo.png"
+              alt=""
+            />
             <div className="brand__name">
               <span className="brand__name--full">Smart Meal Planner</span>
               <span className="brand__name--short">Meal Planner</span>
